@@ -45,7 +45,7 @@ export async function legs() {
       const a = v[j].r, b = v[j + 1].r;
       if (a.s == "후보" || b.s == "후보" || !hasXY(a) || !hasXY(b)) continue;
 
-      const id = "#lg" + v[j].i, A = { lat: a.la, lng: a.lo }, B = { lat: b.la, lng: b.lo };
+      const id = "#lg" + v[j].i + " .lt", A = { lat: a.la, lng: a.lo }, B = { lat: b.la, lng: b.lo };
       const k = [a.la, a.lo, b.la, b.lo, mode].join();
       if ($(id)) $(id).textContent = "↓ 직선 " + hav(A, B).toFixed(1) + "km";
       if (!G.Route) continue;

@@ -100,6 +100,10 @@ a{color:var(--accent-strong)}
 .leg{font-size:11px;color:var(--muted);padding-left:26px;margin:-1px 0;position:relative}
 .leg::before{content:"";position:absolute;left:15px;top:-3px;bottom:-3px;border-left:2px dotted var(--border)}
 .dragging .leg{visibility:hidden}
+.leg{display:flex;align-items:center;gap:8px}
+.gdir{font-size:11px;color:var(--accent-strong);text-decoration:none;white-space:nowrap;padding:2px 6px;border-radius:8px}
+.gdir:hover{background:var(--accent-soft)}
+.tl .gdir{flex:none;font-size:12px;border:1px solid var(--border);padding:4px 8px}
 .ghost{opacity:.35}
 .chosen{box-shadow:var(--shadow-pop)}
 

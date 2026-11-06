@@ -1,7 +1,7 @@
 // 계획 모드: 왼쪽 보관함 + 가운데 Day 칸 (끌어서 배치)
 import { S, UI, cur, dayRows, shown, nums } from "../state.js";
 import { CATS, MODES } from "../constants.js";
-import { $, esc, won, hasXY, dayLabel } from "../utils.js";
+import { $, esc, won, hasXY, dayLabel, dirURL } from "../utils.js";
 import { ic, cv } from "../icons.js";
 import { pcard } from "./card.js";
 import { sortable } from "../events/drag.js";
@@ -49,7 +49,7 @@ function column(c, d) {
     h += pcard(o.r, "r" + o.i, hid ? null : nm[j], c.cur, hid);
     // 다음 장소까지 이동 구간 (google/routes.js가 시간을 채움)
     const n = vis[j + 1];
-    if (!hid && n && o.r.s != "후보" && n.r.s != "후보" && hasXY(o.r) && hasXY(n.r)) h += `<div class="leg" id="lg${o.i}">↓</div>`;
+    if (!hid && n && o.r.s != "후보" && n.r.s != "후보" && hasXY(o.r) && hasXY(n.r)) h += `<div class="leg" id="lg${o.i}"><span class="lt">↓</span><a class="gdir" href="${dirURL(o.r, n.r, S.mode)}" target="_blank" rel="noopener" title="구글맵에서 이 구간 길찾기">길찾기 ↗</a></div>`;
   });
 
   return h + `</div><button class="addc" data-a="manual" data-d="${d}">+ 장소 추가</button></div>`;

@@ -11,6 +11,15 @@ export const won = n => Math.round(n).toLocaleString("ko-KR");
 // 좌표가 있는 장소인지
 export const hasXY = r => typeof r.la == "number" && typeof r.lo == "number";
 
+// 구글맵 길찾기 링크 (휴대폰에선 구글맵 앱이 열림, API 요금 없음)
+//   a가 없으면 출발지 = 현재 위치. mode: TRANSIT / WALKING / DRIVING
+export function dirURL(a, b, mode) {
+  const q = new URLSearchParams({ api: "1", destination: b.la + "," + b.lo, travelmode: String(mode || "TRANSIT").toLowerCase() });
+  if (b.id) q.set("destination_place_id", b.id);
+  if (a) { q.set("origin", a.la + "," + a.lo); if (a.id) q.set("origin_place_id", a.id); }
+  return "https://www.google.com/maps/dir/?" + q;
+}
+
 // 구글맵 검색 링크
 export const gq = r => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(r.p) + (r.id ? "&query_place_id=" + r.id : "");
 

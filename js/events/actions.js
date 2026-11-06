@@ -25,6 +25,7 @@ function deleteDay(c, n) {
 }
 
 function onClick(e) {
+  if (e.target.closest("a[href]")) return; // 길찾기 등 링크는 그대로 열기
   // 메뉴 바깥을 누르면 메뉴 닫기 (누른 버튼 동작은 계속 진행)
   if (UI.menu && !e.target.closest(".mn") && !e.target.closest("[data-a=menu]")) {
     UI.menu = null;
