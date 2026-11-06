@@ -25,7 +25,7 @@ if (online) {
 
 if (!API_KEY || API_KEY === "YOUR_API_KEY") {
   // 키가 없으면 검색 대신 안내, 지도는 간이 지도로
-  $("#sw").innerHTML = `<div class="search">🔍 장소 검색은 지도 키가 필요해요<small>js/config.js의 API_KEY</small></div>`;
+  $("#sw").innerHTML = `<div class="search">🔍 장소 검색은 지도 키가 필요해요<small>js/keys.js의 API_KEY</small></div>`;
   render();
 } else {
   render();

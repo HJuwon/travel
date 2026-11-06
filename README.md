@@ -65,8 +65,11 @@ npx serve .
 ## Vercel 배포
 
 1. [vercel.com](https://vercel.com)에 GitHub 계정으로 가입하고, Add New → Project → 이 저장소를 Import 합니다.
-2. Framework Preset은 **Other**, Build Command는 비워 둡니다 (빌드 없는 정적 사이트).
-3. 이후 `main`에 push할 때마다 자동으로 배포됩니다.
+2. Framework Preset은 **Other**로 둡니다. 빌드 설정은 `vercel.json`에 들어 있어 따로 건드리지 않아도 됩니다.
+3. **Environment Variables**에 `GOOGLE_MAPS_API_KEY` = 구글 지도 키를 넣고 Deploy 합니다.
+   - 배포할 때 `scripts/vercel-build.js`가 이 값으로 `js/keys.js`를 만듭니다. 키는 GitHub 저장소에 올라가지 않습니다.
+   - 키를 나중에 넣거나 바꿨다면 Deployments → 최근 배포 ⋯ → **Redeploy** 해야 반영됩니다.
+4. 이후 `main`에 push할 때마다 자동으로 배포됩니다.
 
 `vercel.json`에 서울 리전(`icn1`)을 지정해 두었습니다. 화면 파일은 Vercel의 전 세계 CDN에서 나가고, 데이터는 서울 Supabase와 직접 주고받습니다.
 구글 지도 키를 쓴다면 HTTP 리퍼러 제한에 Vercel 주소(`https://<프로젝트>.vercel.app/*`)도 추가하세요.
@@ -76,10 +79,13 @@ npx serve .
 키가 없으면 장소 검색이 꺼지고, 지도는 좌표만 찍는 **간이 지도**로 나옵니다. 나머지 기능은 모두 동작합니다.
 
 1. Google Cloud Console에서 **Maps JavaScript API**, **Places API (New)**, **Routes API**를 사용 설정합니다.
-2. API 키를 만들고 **HTTP 리퍼러 제한**을 겁니다. 예: `http://localhost:*/*`, `https://<github-아이디>.github.io/*`
-3. `js/config.js`의 `API_KEY` 값을 바꿉니다.
+2. API 키를 만들고 **HTTP 리퍼러 제한**을 겁니다. 예: `http://localhost:8765/*`, `https://<프로젝트>.vercel.app/*`
+3. 키는 GitHub에 올리지 않습니다.
+   - 로컬: `js/keys.js` 파일을 만들고 `export const API_KEY = "AIza...";` 를 적습니다 (`.gitignore`에 들어 있음).
+   - Vercel: 환경 변수 `GOOGLE_MAPS_API_KEY` (위 Vercel 배포 3번).
+   - `keys.js`가 없는 곳(GitHub Pages 등)에서는 간이 지도로 동작합니다.
 
-> 브라우저에서 쓰는 키는 어차피 사용자에게 노출됩니다. 커밋 여부와 관계없이 리퍼러 제한은 꼭 걸어 주세요.
+> 브라우저에서 쓰는 키는 어차피 사이트 방문자에게 보입니다. 리퍼러 제한은 꼭 걸어 주세요.
 
 ## 폴더 구조
 
@@ -89,7 +95,8 @@ css/colors.css          🎨 모든 색 (라이트/다크, 카테고리 색). �
 css/style.css           레이아웃·모양 (색은 colors.css 변수만 사용)
 js/
   main.js               시작점 (이벤트 연결, 첫 렌더, 지도 스크립트 로드)
-  config.js             구글 지도 키, Supabase 주소·키
+  config.js             Supabase 주소·키, 구글 지도 키 읽기
+  keys.js               구글 지도 키 (Git에 안 올림, Vercel에서는 배포 때 생성)
   sync.js               Supabase 연동: 입장 비밀번호, 불러오기, 자동 저장, 충돌 알림
   constants.js          카테고리, 이동수단, 기본 체크리스트
   icons.js              카테고리 아이콘·색, 구글 장소 종류 → 카테고리
@@ -109,7 +116,8 @@ js/
   google/               구글 지도, 장소(Places), 이동시간(Routes)
   events/               클릭, 입력, 드래그(SortableJS)
 supabase/schema.sql     DB 테이블, 비밀번호 확인, 읽기/쓰기 함수
-vercel.json             Vercel 설정 (서울 리전)
+vercel.json             Vercel 설정 (서울 리전, 빌드 명령)
+scripts/vercel-build.js 배포 때 환경 변수로 js/keys.js 생성
 ```
 
 ## GitHub Pages 배포
