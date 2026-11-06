@@ -10,7 +10,7 @@ let ticket = 0; // 늦게 도착한 이전 요청 결과 무시용
 
 const isoDate = t => t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
 
-async function dayForecast(c, d, all) {
+export async function dayForecast(c, d, all) {
   const q = c.rows.find(r => r.d == d && hasXY(r)), ref = q || all[0];
   const t = new Date(c.start + "T00:00:00");
   t.setDate(t.getDate() + d - 1);

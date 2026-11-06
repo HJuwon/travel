@@ -1,4 +1,6 @@
-// 앱 상태(S) · localStorage 저장/불러오기 · 이전 데이터 변환
+// 앱 상태 · localStorage 저장/불러오기 · 이전 데이터 변환
+//   S  : 저장되는 데이터 (나라, 일정, 보관함, 준비물 …)
+//   UI : 화면 상태 (저장 안 함 — 새로고침하면 초기화)
 import { SEED } from "./seed.js";
 import { newPrep } from "./constants.js";
 
@@ -11,9 +13,12 @@ function load() {
 let s = load();
 if (!s || !s.cs || (s.v != 2 && !s.cs.some(c => c.rows && c.rows.length))) s = SEED();
 
-// 화면 전용 상태는 매번 초기화
-s.v = 2; s.del = false; s.menu = false; s.dsel = {}; s.wsel = {}; s.wmsg = "";
-s.sel = s.sel || 0; s.pin = -1; s.tab = s.tab || "plan"; s.day = s.day || 0; s.mode = s.mode || "TRANSIT";
+s.v = 2;
+s.sel = s.sel || 0;
+s.mode = s.mode || "TRANSIT";                       // 이동시간 계산 수단
+if (!["plan", "prep", "bud", "wx"].includes(s.tab)) s.tab = "plan"; // 예전 '위시' 탭 → 일정
+// 예전 버전에서 쓰던 화면 상태 정리
+["del", "menu", "dsel", "wsel", "wmsg", "wmd", "wd", "pin", "day", "view"].forEach(k => delete s[k]);
 
 // 예전 버전 데이터 보정
 s.cs.forEach(c => {
@@ -27,6 +32,16 @@ s.cs.forEach(c => {
 
 export const S = s;
 
+export const UI = {
+  mode: "plan",   // 일정 탭 안: "plan"(계획) | "dash"(대시보드)
+  focus: 1,       // 지도에 보여줄 Day (0 = 전체)
+  open: null,     // 상세 패널에 열린 장소 { o: 장소 객체 }
+  sel: null,      // 대시보드에서 강조한 장소 키 ("r3")
+  catF: "",       // 보관함 카테고리 필터
+  menu: null,     // 열린 메뉴 ("country" | "day2" …)
+  mapOn: false,   // 태블릿·폰에서 지도 패널 열림
+};
+
 export function save() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
 }
@@ -34,17 +49,38 @@ export function save() {
 // 현재 선택한 나라
 export const cur = () => S.cs[S.sel];
 
-// 지금 화면에 보이는 장소들 (Day 필터 · 후보 숨김 적용, 원래 인덱스 i 유지)
-export const vis = () => cur().rows
-  .map((r, i) => ({ r, i }))
-  .filter(o => (!S.day || o.r.d == S.day) && !(S.hc && o.r.s == "후보"))
-  .sort((a, b) => a.r.d - b.r.d || a.i - b.i);
-
-// Day별 번호 (후보는 "?")
-export const nums = v => {
-  let n = 0, pd = 0;
-  return v.map(o => {
-    if (o.r.d != pd) { pd = o.r.d; n = 0; }
-    return o.r.s == "후보" ? "?" : ++n;
-  });
+// 카드 키 ↔ 장소 객체 ("r3" = 일정 3번째, "w0" = 보관함 0번째)
+export const byKey = k => {
+  const c = cur();
+  if (!c || !k) return null;
+  return (k[0] == "w" ? c.wish : c.rows)[+k.slice(1)] || null;
 };
+
+// 한 Day의 장소들 (원래 인덱스 i 유지)
+export const dayRows = d => cur().rows.map((r, i) => ({ r, i })).filter(o => o.r.d == d);
+
+// 후보 숨기기 적용
+export const shown = list => list.filter(o => !(S.hc && o.r.s == "후보"));
+
+// Day 안의 번호 (후보는 "?")
+export const nums = v => {
+  let n = 0;
+  return v.map(o => o.r.s == "후보" ? "?" : ++n);
+};
+
+// 장소를 보관함(0) 또는 Day(d)로 옮기기
+export function moveTo(o, d) {
+  const c = cur();
+  c.rows = c.rows.filter(x => x !== o);
+  c.wish = c.wish.filter(x => x !== o);
+  if (!d) { c.wish.push(o); return; }
+  o.d = d; o.s = o.s || "필수"; o.w = o.w || 0;
+  c.rows.push(o);
+}
+
+// 장소 삭제
+export function removePlace(o) {
+  const c = cur();
+  c.rows = c.rows.filter(x => x !== o);
+  c.wish = c.wish.filter(x => x !== o);
+}

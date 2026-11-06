@@ -1,40 +1,43 @@
-// 상태(S)가 바뀔 때마다 전체 화면을 다시 그림 + 저장
-import { S, save } from "./state.js";
+// 상태가 바뀔 때마다 화면을 다시 그림 + 저장
+import { S, UI, cur, save } from "./state.js";
 import { $ } from "./utils.js";
-import { renderCountries, renderHeader } from "./views/header.js";
-import { renderDays } from "./views/days.js";
-import { renderDelbar } from "./views/delbar.js";
-import { renderPlan } from "./views/plan.js";
-import { renderWish } from "./views/wish.js";
+import { renderHeader } from "./views/header.js";
+import { renderWish, renderBoard } from "./views/board.js";
+import { renderDash } from "./views/dash.js";
+import { renderDrawer } from "./views/drawer.js";
 import { renderPrep } from "./views/prep.js";
 import { renderBudget } from "./views/budget.js";
 import { renderWeather } from "./views/weather.js";
-import { drawMarkers } from "./google/map.js";
+import { placeMap, drawMarkers } from "./google/map.js";
 import { legs } from "./google/routes.js";
 
-export function render() {
-  renderCountries();
-  renderHeader();
-  renderDelbar();
-  renderDays();
-  document.body.classList.toggle("delm", !!S.del);
+// 상세 패널을 뺀 나머지 (패널에서 입력 중일 때 포커스가 안 날아가게)
+export function renderMain() {
+  const c = cur(), plan = S.tab == "plan";
+  // 열린 장소가 지워졌으면 패널 닫기
+  if (UI.open && !(c && (c.rows.includes(UI.open.o) || c.wish.includes(UI.open.o)))) UI.open = null;
 
-  // 탭별로 보일 영역
-  $("#plan").hidden = !(S.tab == "plan" || S.tab == "wish");
-  $("#sheet").hidden = S.tab == "wish";
-  $("#wish").hidden = S.tab != "wish";
+  renderHeader();
+  $("#planner").hidden = !(plan && UI.mode == "plan");
+  $("#dash").hidden = !(plan && UI.mode == "dash");
   $("#prep").hidden = S.tab != "prep";
   $("#bud").hidden = S.tab != "bud";
   $("#wxt").hidden = S.tab != "wx";
-  $("#plan").className = "pl";
-  document.querySelectorAll(".vt button").forEach(x => x.classList.toggle("on", x.dataset.v == (S.view || "list")));
+  $("#planner").classList.toggle("mapon", UI.mapOn);
 
-  renderPlan();
-  renderWish();
+  if (plan) {
+    placeMap();
+    if (UI.mode == "plan") { renderWish(); renderBoard(); } else renderDash();
+    drawMarkers();
+    legs();
+  }
   renderPrep();
   renderBudget();
-  drawMarkers();
-  legs();
   renderWeather();
   save();
+}
+
+export function render() {
+  renderMain();
+  renderDrawer();
 }

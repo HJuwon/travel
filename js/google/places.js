@@ -1,22 +1,21 @@
-// 장소 추가 · 영업시간/웹사이트 자동 채우기 (Places API)
+// 장소 추가 · 영업시간/웹사이트/카테고리 자동 채우기 (Places API)
 import { G } from "./gm.js";
-import { fit } from "./map.js";
-import { S, cur } from "../state.js";
+import { panTo } from "./map.js";
+import { UI, cur } from "../state.js";
+import { guessCat } from "../icons.js";
 import { render } from "../render.js";
 
-export async function addPlace(p) {
+// d = 0 이면 보관함, 1 이상이면 그 Day에 추가
+export async function addPlace(p, d = 0) {
   const c = cur();
   if (!c) return;
-  await p.fetchFields({ fields: ["displayName", "location", "formattedAddress"] });
-  const base = { p: p.displayName, id: p.id, la: p.location.lat(), lo: p.location.lng(), c: "관광", m: "" };
-
-  if (S.tab == "wish") { c.wish.push(base); render(); fit(); return; }
-
-  c.rows.push(Object.assign(base, { w: 0, d: S.day || 1, s: "필수" }));
-  const nr = c.rows[c.rows.length - 1];
-  S.pin = c.rows.length - 1;
-  render(); fit();
-  autofill(p, nr);
+  await p.fetchFields({ fields: ["displayName", "location", "formattedAddress", "types"] });
+  const o = { p: p.displayName, id: p.id, la: p.location.lat(), lo: p.location.lng(), c: guessCat(p.types), m: "", w: 0 };
+  if (d) { o.d = d; o.s = "필수"; c.rows.push(o); } else c.wish.push(o);
+  UI.open = { o };
+  render();
+  panTo(o);
+  autofill(p, o);
 }
 
 // 구글 영업시간 → "월~금 09:00~18:00" 형태 + 브레이크타임 추출
@@ -71,7 +70,7 @@ export function applyHours(r, h) {
   return true;
 }
 
-// 새로 추가한 장소의 영업시간·웹사이트·무료 여부 채우기
+// 영업시간·웹사이트·무료 여부 채우기
 export async function autofill(p, r) {
   try {
     await p.fetchFields({ fields: ["regularOpeningHours", "websiteUri", "priceLevel"] });
@@ -82,10 +81,9 @@ export async function autofill(p, r) {
   } catch (e) { console.error(e); }
 }
 
-// "구글에서 영업시간 불러오기" 버튼
-export async function loadHours(i) {
-  const r = cur().rows[i];
-  if (!r.id || !G.Place) return;
+// 상세 패널의 "영업시간 불러오기" 버튼
+export async function loadHours(r) {
+  if (!r || !r.id || !G.Place) return;
   try {
     const p = new G.Place({ id: r.id });
     await p.fetchFields({ fields: ["regularOpeningHours"] });

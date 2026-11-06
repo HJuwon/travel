@@ -2,55 +2,59 @@
    🎨 색상 테마
    앱에서 쓰는 모든 색은 이 파일에만 있습니다.
    여기 값만 바꾸면 화면, 지도 마커, 동선까지 같이 바뀝니다.
-   (지도 마커·동선 색은 js/colors.js가 이 값을 읽어 씁니다)
+   (구글 지도 동선 선 색은 js/colors.js가 이 값을 읽어 씁니다)
    ========================================================= */
 
-/* ---------- 라이트 모드 ---------- */
+/* ---------- 라이트 모드: 흰 바탕 + 파란 선 ---------- */
 :root{
   /* 기본 */
-  --bg:#f1f6fb;              /* 페이지 배경 */
-  --surface:#fff;            /* 카드·버튼·입력칸 배경 */
-  --field:#f6f9fc;           /* 카드 안쪽 옅은 칸 (태그, 목록 카드) */
-  --text:#10253a;            /* 본문 글자 */
-  --muted:#62768a;           /* 보조 글자 (설명, 회색 글씨) */
-  --border:#dbe6f0;          /* 테두리·구분선 */
+  --bg:#fff;                 /* 페이지 배경 */
+  --surface:#fff;            /* 카드·패널 배경 */
+  --field:#fff;              /* 입력칸 배경 */
+  --text:#1d2733;            /* 본문 글자 */
+  --muted:#6b7785;           /* 보조 글자 */
+  --border:#c5daf5;          /* 모든 테두리·구분선·타임라인 선 (파란 선) */
 
-  /* 강조 (메인 색) */
-  --accent:#0b84e5;          /* 선택된 탭·칩, 주요 버튼, 번호 배지, 링크 */
-  --accent-soft:#d9ebfa;     /* 강조색의 옅은 배경 (선택 테두리, 비용 태그, 막대 배경) */
-  --on-accent:#fff;          /* 강조색 위 글자 */
-  --on-accent-muted:rgba(255,255,255,.8);
+  /* 강조 (메인 파랑) */
+  --accent:#4a8fe7;          /* 선택 테두리, 동선, 주요 버튼 */
+  --accent-soft:#eef5fe;     /* 선택된 탭·버튼의 옅은 배경 */
+  --accent-strong:#2f6fc4;   /* 옅은 배경 위 파란 글자, 링크 */
+  --on-accent:#fff;          /* 진한 파랑 위 글자 */
 
   /* 상태 */
-  --candidate:#9db0c2;       /* '후보' 장소 (점선 배지, 꺼진 토글) */
-  --danger:#e5484d;          /* 삭제 버튼, 삭제 선택 테두리 */
-  --danger-soft:rgba(229,72,77,.18); /* 삭제 모드에서 선택한 항목 배경 */
-  --danger-bar-bg:#fde2e2;   /* 삭제 모드 하단 바 */
-  --danger-bar-text:#7a1d1d;
-  --warn-bg:#fff4d6;         /* 안내 상자 (API 키 안내 등) */
-  --warn-text:#5b4300;
-  --toggle-knob:#fff;        /* 토글 스위치 동그라미 */
+  --candidate:#9aa8b8;       /* '후보' 점선 */
+  --danger:#e5484d;          /* 삭제 */
+  --warn-bg:#fff8e6;         /* 안내 상자 */
+  --warn-text:#6b4e00;
+  --toggle-knob:#fff;
 
-  /* 그림자 */
-  --shadow:0 1px 2px rgba(20,32,43,.06);  /* 카드 */
-  --shadow-pop:0 8px 24px rgba(0,0,0,.2); /* ⋯ 메뉴 */
-  --shadow-bar:0 4px 16px rgba(0,0,0,.25);/* 하단 바 */
+  /* 그림자·덮개 */
+  --shadow:none;
+  --shadow-pop:0 12px 32px rgba(16,24,40,.18);   /* 메뉴, 상세 패널 */
+  --scrim:rgba(10,20,30,.25);                    /* 상세 패널 뒤 어둡게 */
 
-  /* 지도 정보창 (구글 지도 위 흰 말풍선, 다크 모드에서도 흰색) */
+  /* 지도 */
+  --map-bg:#fff;                     /* 간이 지도 배경 */
+  --map-grid:rgba(74,143,231,.10);   /* 간이 지도 격자 */
+  --route:#4a8fe7;                   /* 동선 선 */
+  --pin-badge:#1d2733;               /* 마커 번호 배경 */
+  --pin-badge-text:#fff;
+
+  /* 카테고리 (카드 아이콘, 지도 마커, 필터에 공통) */
+  --cat-sight:#5b7cfa;   /* 관광 */
+  --cat-food:#f0883e;    /* 식사 */
+  --cat-stay:#9a6fd8;    /* 숙소 */
+  --cat-move:#2ea3a0;    /* 교통 */
+  --cat-shop:#e5669b;    /* 쇼핑 */
+  --cat-etc:#8b97a6;     /* 기타 */
+  --on-cat:#fff;         /* 카테고리 색 위 아이콘 */
+
+  /* 구글 지도 정보창 (항상 흰 말풍선) */
   --iw-text:#1f2328;
   --iw-muted:#777;
   --iw-line:#ddd;
-  --iw-button:#0b84e5;
+  --iw-button:#4a8fe7;
   --iw-button-text:#fff;
-
-  /* 지도 마커·동선 */
-  --pin-must:#0b84e5;        /* 필수 장소 */
-  --pin-candidate:#9db0c2;   /* 후보 장소 */
-  --pin-selected:#e5484d;    /* 선택한 장소 */
-  --pin-wish:#7c5cff;        /* 위시 장소 */
-  --pin-glyph:#fff;          /* 마커 안 번호 */
-  --pin-border:#fff;
-  --route-line:#0b84e5;      /* 동선 선 */
 }
 
 /* ---------- 다크 모드 (기기 설정이 다크일 때) ----------
@@ -58,15 +62,24 @@
 @media (prefers-color-scheme:dark){
   :root{
     color-scheme:dark;
-    --bg:#0c151d;
-    --surface:#15222d;
-    --field:#101b25;
-    --text:#e6eef5;
-    --muted:#8ea1b3;
-    --border:#243545;
-    --accent:#4aa8f0;
-    --accent-soft:#12304a;
-    --candidate:#5b6f82;
-    --shadow:none;
+    --bg:#0f1620;
+    --surface:#0f1620;
+    --field:#141e2a;
+    --text:#e6edf5;
+    --muted:#93a1b0;
+    --border:#2c4a6e;
+    --accent:#6aa5ef;
+    --accent-soft:#16263a;
+    --accent-strong:#a4c8f5;
+    --candidate:#6b7a8b;
+    --warn-bg:#2d2614;
+    --warn-text:#f0d48a;
+    --shadow-pop:0 12px 32px rgba(0,0,0,.55);
+    --scrim:rgba(0,0,0,.45);
+    --map-bg:#0f1620;
+    --map-grid:rgba(106,165,239,.08);
+    --route:#6aa5ef;
+    --pin-badge:#e6edf5;
+    --pin-badge-text:#0f1620;
   }
 }

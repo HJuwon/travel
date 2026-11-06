@@ -1,27 +1,32 @@
-// 지도 초기화 · 마커/동선 그리기 · 화면 맞추기 · 정보창
+// 구글 지도: 초기화 · 카테고리 마커/동선 · 범위 맞추기 · 장소 고르기
 import { G } from "./gm.js";
 import { addPlace } from "./places.js";
 import { legs } from "./routes.js";
-import { S, cur, vis, nums } from "../state.js";
+import { S, UI, cur, byKey } from "../state.js";
 import { $, esc, hasXY } from "../utils.js";
 import { color } from "../colors.js";
 import { render } from "../render.js";
+import { mapData, pinHTML, renderMapHead, drawMini } from "../views/mapview.js";
 
 export async function init() {
   const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-  ({ AdvancedMarkerElement: G.AME, PinElement: G.PinEl } = await google.maps.importLibrary("marker"));
+  ({ AdvancedMarkerElement: G.AME } = await google.maps.importLibrary("marker"));
   const pl = await google.maps.importLibrary("places");
   G.Place = pl.Place;
   try { ({ Route: G.Route } = await google.maps.importLibrary("routes")); } catch (e) {}
 
-  G.map = new Map($("#map"), { center: { lat: 30, lng: 20 }, zoom: 2, mapId: "DEMO_MAP_ID", streetViewControl: false, mapTypeControl: false, fullscreenControl: false });
+  const el = $("#map");
+  el.classList.remove("mini");
+  el.innerHTML = "";
+  G.map = new Map(el, { center: { lat: 30, lng: 20 }, zoom: 2, mapId: "DEMO_MAP_ID", streetViewControl: false, mapTypeControl: false, fullscreenControl: false });
   G.iw = new InfoWindow();
 
-  // 검색창 (장소 자동완성)
+  // 보관함 위 검색창 → 보관함에 추가
   const pac = new pl.PlaceAutocompleteElement();
-  const onSel = async e => { const pp = e.placePrediction; await addPlace(pp ? pp.toPlace() : e.place); };
+  const onSel = async e => { const pp = e.placePrediction; await addPlace(pp ? pp.toPlace() : e.place, 0); };
   pac.addEventListener("gmp-select", onSel);
   pac.addEventListener("gmp-placeselect", onSel);
+  $("#sw").innerHTML = "";
   $("#sw").appendChild(pac);
 
   // 지도 위 관광지 아이콘 클릭 → 정보창 + 추가 버튼
@@ -31,26 +36,32 @@ export async function init() {
     try {
       const p = new G.Place({ id: e.placeId });
       await p.fetchFields({ fields: ["displayName", "location", "formattedAddress", "rating", "userRatingCount", "reviews", "googleMapsURI"] });
-      const d = card(p.displayName, p), b = document.createElement("button");
-      b.textContent = S.tab == "wish" ? "+ 위시에 추가" : "+ 일정에 추가";
-      b.onclick = () => { G.iw.close(); addPlace(p); };
-      d.appendChild(b);
+      const d = card(p.displayName, p);
+      const add = (label, day) => {
+        const b = document.createElement("button");
+        b.textContent = label;
+        b.onclick = () => { G.iw.close(); addPlace(p, day); };
+        d.appendChild(b);
+      };
+      add("+ 보관함", 0);
+      if (UI.mode == "plan" && UI.focus) add("+ Day " + UI.focus, UI.focus);
       G.iw.setContent(d);
       G.iw.setPosition(p.location);
       G.iw.open({ map: G.map });
     } catch (err) { console.error(err); }
   });
 
-  drawMarkers(true);
+  render();
+  fit();
   legs();
 }
 
-// 정보창 내용 (평점·리뷰 3개)
+// 평점·리뷰 카드 (정보창, 상세 패널 공용)
 export function card(name, p) {
   const d = document.createElement("div");
   d.className = "iw";
   let h = `<b>${esc(name)}</b>`;
-  if (p && p.rating) h += `<div>⭐ ${p.rating} <span style="color:var(--iw-muted)">(${p.userRatingCount || 0})</span></div>`;
+  if (p && p.rating) h += `<div>⭐ ${p.rating} <span class="muted">(${p.userRatingCount || 0})</span></div>`;
   (p && p.reviews || []).slice(0, 3).forEach(v => {
     const t = String(v.text || "");
     h += `<div class="rv">⭐${v.rating} · ${esc(v.authorAttribution ? v.authorAttribution.displayName : "")}<br>${esc(t.length > 110 ? t.slice(0, 110) + "…" : t)}</div>`;
@@ -60,69 +71,70 @@ export function card(name, p) {
   return d;
 }
 
-// 보이는 장소가 다 들어오게 지도 범위 맞추기
+// 지도 영역을 지금 화면(계획/대시보드) 쪽으로 옮기기
+export function placeMap() {
+  const slot = $(UI.mode == "dash" ? "#dslot" : "#pslot"), el = $("#map");
+  if (el.parentNode !== slot) {
+    slot.appendChild(el);
+    if (G.map) setTimeout(() => { google.maps.event.trigger(G.map, "resize"); fit(); }, 60);
+  }
+}
+
+// 마커·동선 다시 그리기
+export function drawMarkers() {
+  if (S.tab != "plan") return;
+  const { pts, lines } = mapData();
+  renderMapHead(pts);
+  if (!G.map) { drawMini($("#map"), pts, lines); return; }
+
+  Object.values(G.mk).forEach(m => m.map = null);
+  G.mk = {};
+  G.lines.forEach(l => l.setMap(null));
+  G.lines = [];
+
+  pts.forEach(p => {
+    const t = document.createElement("div");
+    t.innerHTML = pinHTML(p);
+    const pin = t.firstElementChild;
+    pin.removeAttribute("data-a"); // 클릭은 아래 gmp-click으로만 처리 (중복 방지)
+    const m = new G.AME({ map: G.map, position: { lat: p.o.la, lng: p.o.lo }, content: pin, title: p.o.p, zIndex: p.wish ? 0 : 1 });
+    m.addListener("gmp-click", () => pick(p.key));
+    G.mk[p.key] = m;
+  });
+  lines.forEach(L => {
+    if (L.length > 1) G.lines.push(new google.maps.Polyline({ map: G.map, path: L.map(o => ({ lat: o.la, lng: o.lo })), strokeColor: color("route"), strokeOpacity: .8, strokeWeight: 3 }));
+  });
+}
+
+// 보이는 장소가 다 들어오게 범위 맞추기
 export function fit() {
-  if (!G.map || !cur()) return;
-  const v = S.tab == "wish" ? cur().wish.filter(hasXY).map(w => ({ r: w })) : vis().filter(o => hasXY(o.r));
-  if (!v.length) return;
-  if (v.length == 1) { G.map.setCenter({ lat: v[0].r.la, lng: v[0].r.lo }); G.map.setZoom(14); return; }
+  if (!G.map) return;
+  const { pts } = mapData();
+  const P = pts.filter(p => !p.wish).length ? pts.filter(p => !p.wish) : pts;
+  if (!P.length) return;
+  if (P.length == 1) { G.map.setCenter({ lat: P[0].o.la, lng: P[0].o.lo }); G.map.setZoom(14); return; }
   const b = new google.maps.LatLngBounds();
-  v.forEach(o => b.extend({ lat: o.r.la, lng: o.r.lo }));
+  P.forEach(p => b.extend({ lat: p.o.la, lng: p.o.lo }));
   G.map.fitBounds(b, 60);
 }
 
-export function drawMarkers(doFit) {
-  if (!G.map) return;
-  Object.values(G.mk).forEach(m => m.map = null);
-  G.mk = {};
-  if (G.line) G.line.setMap(null);
-  if (!cur()) return;
-
-  // 위시 탭: 보라색 번호 마커
-  if (S.tab == "wish") {
-    cur().wish.forEach((w, i) => {
-      if (!hasXY(w)) return;
-      const pin = new G.PinEl({ glyph: String(i + 1), glyphColor: color("pin-glyph"), background: color(S.wsel[i] ? "pin-selected" : "pin-wish"), borderColor: color("pin-border") });
-      const m = new G.AME({ map: G.map, position: { lat: w.la, lng: w.lo }, content: pin.element, title: w.p });
-      m.addListener("gmp-click", () => { G.iw.setContent(card(w.p, null)); G.iw.open({ map: G.map, anchor: m }); });
-      G.mk["w" + i] = m;
-    });
-    if (doFit) fit();
-    return;
-  }
-
-  // 일정 탭: 순서 번호 마커 + 동선
-  const v = vis(), nm = nums(v);
-  v.forEach((o, j) => {
-    if (!hasXY(o.r)) return;
-    const bg = o.i == S.pin ? "pin-selected" : o.r.s == "후보" ? "pin-candidate" : "pin-must";
-    const pin = new G.PinEl({ glyph: String(nm[j]), glyphColor: color("pin-glyph"), background: color(bg), borderColor: color("pin-border") });
-    const m = new G.AME({ map: G.map, position: { lat: o.r.la, lng: o.r.lo }, content: pin.element, title: o.r.p });
-    m.addListener("gmp-click", () => choose(o.i));
-    G.mk[o.i] = m;
-  });
-  G.line = new google.maps.Polyline({
-    map: G.map,
-    path: v.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => ({ lat: o.r.la, lng: o.r.lo })),
-    strokeColor: color("route-line"), strokeOpacity: .7, strokeWeight: 3,
-  });
-  if (doFit) fit();
+export function panTo(o) {
+  if (G.map && o && hasXY(o)) G.map.panTo({ lat: o.la, lng: o.lo });
 }
 
-// 장소 선택 → 카드 펼치기 + 지도 이동 + 리뷰 정보창
-export async function choose(i) {
-  S.pin = i;
-  render();
-  const r = cur().rows[i];
-  if (!r || !G.map || !hasXY(r)) return;
-  G.map.panTo({ lat: r.la, lng: r.lo });
-  G.iw.setContent(card(r.p, null));
-  G.iw.open({ map: G.map, anchor: G.mk[i] });
-  if (r.id) {
-    try {
-      const p = new G.Place({ id: r.id });
-      await p.fetchFields({ fields: ["rating", "userRatingCount", "reviews", "googleMapsURI"] });
-      G.iw.setContent(card(r.p, p));
-    } catch (err) { console.error(err); }
+// 카드·마커·후보를 눌렀을 때
+//   계획 모드 → 상세 패널 열기 / 대시보드 → 지도에서 강조
+export function pick(k) {
+  const o = byKey(k);
+  if (!o) return;
+  if (UI.mode == "dash") {
+    UI.sel = UI.sel == k ? null : k;
+    if (UI.sel && k[0] == "r") UI.focus = o.d;
+    render();
+    if (UI.sel) panTo(o);
+    return;
   }
+  UI.open = { o };
+  render();
+  panTo(o);
 }

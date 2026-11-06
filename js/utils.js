@@ -21,6 +21,29 @@ export const hav = (a, b) => {
   return 12742 * Math.asin(Math.sqrt(p));
 };
 
+// Day d의 날짜 (시작일이 없으면 null)
+export const dayDate = (c, d) => {
+  if (!c || !c.start) return null;
+  const t = new Date(c.start + "T00:00:00");
+  t.setDate(t.getDate() + d - 1);
+  return t;
+};
+export const dayLabel = (c, d) => {
+  const t = dayDate(c, d);
+  return t ? t.toLocaleDateString("ko-KR", { month: "numeric", day: "numeric", weekday: "short" }) : "";
+};
+
+// 오늘이 여행 중이면 몇 번째 Day인지 (아니면 0)
+export const todayDay = c => {
+  const s = dayDate(c, 1);
+  if (!s) return 0;
+  const n = new Date(); n.setHours(0, 0, 0, 0);
+  const d = Math.round((n - s) / 864e5) + 1;
+  return d >= 1 && d <= c.nd ? d : 0;
+};
+
+export const isPhone = () => matchMedia("(max-width:760px)").matches;
+
 // 밀리초 → "1시간 5분"
 export const fmtT = ms => {
   const m = Math.max(1, Math.round(ms / 60000));

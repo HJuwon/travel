@@ -11,37 +11,61 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="wrap">
-  <div class="top">
-    <h1>✈️ 여행 플래너</h1>
-    <nav class="nav"><div id="tabs"></div></nav>
-  </div>
 
-  <!-- 나라 선택 -->
-  <div class="csr"><div class="cs" id="cs"></div><div class="csa" id="csa"></div></div>
-  <div id="warn"></div>
-  <div class="hd" id="hd"></div>
+<!-- 상단: 나라 선택 · 탭 · 계획/대시보드 -->
+<header class="top">
+  <div class="brand">✈️ <span class="bt">여행 플래너</span></div>
+  <div class="cwrap" id="cwrap"></div>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="seg" id="seg"></div>
+</header>
 
-  <!-- 일정 / 위시 (지도 + 목록) -->
-  <div id="plan" class="pl">
-    <div class="ptop"><div id="sw"></div></div>
-    <div class="mapcol"><div id="map"></div></div>
-    <div class="listcol">
-      <div class="dbox">
-        <div class="dr1"><div class="days" id="days"></div><div class="dact" id="dact"></div></div>
-        <div class="dr2" id="dtools"></div>
-      </div>
-      <div id="sheet"></div>
-      <div id="wish" hidden></div>
-    </div>
-  </div>
+<!-- 일정 · 계획 모드: 보관함 | Day 칸 | 지도 -->
+<main class="planner" id="planner">
+  <aside class="wish">
+    <div class="sw" id="sw"></div>
+    <div class="sec">보관함 <span id="wcount"></span></div>
+    <div class="cats" id="wcats"></div>
+    <div class="wlist" id="wishlist"></div>
+    <button class="addw" data-a="wmanual">+ 직접 추가</button>
+    <p class="hint">카드를 Day 칸으로 끌어다 놓으세요.<br>태블릿·폰에서는 길게 눌러서 잡아요.</p>
+  </aside>
+  <section class="main">
+    <div class="bar" id="bar"></div>
+    <div class="board" id="board"></div>
+  </section>
+  <section class="mapwrap">
+    <div class="maph" id="pmh"></div>
+    <div class="mapslot" id="pslot"><div id="map"></div></div>
+    <div class="legend" id="plg"></div>
+  </section>
+</main>
 
-  <!-- 준비 / 예산 / 날씨 탭 -->
-  <div id="prep" hidden></div>
-  <div id="bud" hidden></div>
-  <div id="wxt" hidden></div>
-</div>
-<div id="delbar"></div>
+<!-- 일정 · 대시보드 모드: Day별 일정 | 지도 + 후보 -->
+<main class="dash" id="dash" hidden>
+  <div class="days" id="ddays"></div>
+  <aside class="dside">
+    <section class="mapwrap">
+      <div class="maph" id="dmh"></div>
+      <div class="mapslot" id="dslot"></div>
+      <div class="legend" id="dlg"></div>
+    </section>
+    <section class="cands">
+      <div class="sec">후보 <span id="ccount"></span></div>
+      <p class="chint">시간이 남거나 계획이 바뀌면 여기서 골라요</p>
+      <ul class="tl" id="cands"></ul>
+    </section>
+  </aside>
+</main>
+
+<!-- 준비 / 예산 / 날씨 탭 -->
+<main class="page" id="prep" hidden></main>
+<main class="page" id="bud" hidden></main>
+<main class="page" id="wxt" hidden></main>
+
+<!-- 장소 상세 패널 -->
+<div class="scrim" id="scrim" data-a="close" hidden></div>
+<aside class="drawer" id="drawer" aria-label="장소 상세"></aside>
 
 <script type="module" src="js/main.js"></script>
 </body>

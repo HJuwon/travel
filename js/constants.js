@@ -15,6 +15,3 @@ export const newPrep = (bk = []) => ({
   docs: DOC0.map(t => ({ t, x: 0 })),
   bk,
 });
-
-// 삭제 모드 이름
-export const DL = { r: "장소", day: "Day", c: "나라", bk: "예약", docs: "서류", chk: "준비물" };

@@ -1,18 +1,19 @@
 // 준비 탭: 예약 정보 · 서류 · 준비물 · 교통/결제 · 환율 계산기
-import { S, cur } from "../state.js";
+import { cur } from "../state.js";
 import { $, esc, won } from "../utils.js";
 
 const BK_TYPES = ["항공", "숙소", "교통", "액티비티"];
+const X = (l, i) => `<button class="xb" data-a="del" data-l="${l}" data-i="${i}" aria-label="삭제" title="삭제">✕</button>`;
 
 // 체크리스트 (docs / chk)
 function list(l) {
   const p = cur().prep[l];
-  return p.map((x, i) => `<div class="row${S.dsel[l + ":" + i] ? " sl" : ""}" data-del="${l}:${i}"><input type="checkbox" data-l="${l}" data-i="${i}" data-k="x" ${x.x ? "checked" : ""}><input data-l="${l}" data-i="${i}" data-k="t" value="${esc(x.t)}"></div>`).join("")
+  return p.map((x, i) => `<div class="row"><input type="checkbox" data-l="${l}" data-i="${i}" data-k="x" ${x.x ? "checked" : ""} aria-label="완료"><input data-l="${l}" data-i="${i}" data-k="t" value="${esc(x.t)}">${X(l, i)}</div>`).join("")
     + `<input data-add="${l}" placeholder="추가할 항목 입력 후 Enter">`;
 }
 
 function bookingCard(p) {
-  return `<div class="card"><h3>🎫 예약 정보<button class="ic" data-a="delmode" data-t="bk" title="삭제" aria-label="삭제">🗑</button></h3>${p.bk.map((b, i) => `<div class="bkr${S.dsel["bk:" + i] ? " sl" : ""}" data-del="bk:${i}"><div class="row"><select data-l="bk" data-i="${i}" data-k="t" style="width:auto">${BK_TYPES.map(x => `<option ${x == b.t ? "selected" : ""}>${x}</option>`).join("")}</select><input data-l="bk" data-i="${i}" data-k="n" placeholder="이름·구간" value="${esc(b.n)}" style="flex:1;min-width:0"></div><div class="row"><input data-l="bk" data-i="${i}" data-k="d" type="date" value="${esc(b.d)}" style="flex:1"><input data-l="bk" data-i="${i}" data-k="no" placeholder="예약번호" value="${esc(b.no)}" style="flex:1;min-width:0"></div></div>`).join("")}<button data-a="add" data-l="bk">+ 예약 추가</button></div>`;
+  return `<div class="card"><h3>🎫 예약 정보</h3>${p.bk.map((b, i) => `<div class="bkr"><div class="row"><select data-l="bk" data-i="${i}" data-k="t" style="width:auto">${BK_TYPES.map(x => `<option ${x == b.t ? "selected" : ""}>${x}</option>`).join("")}</select><input data-l="bk" data-i="${i}" data-k="n" placeholder="이름·구간" value="${esc(b.n)}" style="flex:1;min-width:0">${X("bk", i)}</div><div class="row"><input data-l="bk" data-i="${i}" data-k="d" type="date" value="${esc(b.d)}" style="flex:1"><input data-l="bk" data-i="${i}" data-k="no" placeholder="예약번호" value="${esc(b.no)}" style="flex:1;min-width:0"></div></div>`).join("")}<button class="btn add" data-a="add" data-l="bk">+ 예약 추가</button></div>`;
 }
 
 function transportCard(c) {
@@ -37,7 +38,7 @@ export function renderPrep() {
   const p = c.prep;
   $("#prep").innerHTML = `<div class="g2">
 ${bookingCard(p)}
-<div class="card"><h3>🛂 비자·여권·보험<button class="ic" data-a="delmode" data-t="docs" title="삭제" aria-label="삭제">🗑</button></h3>${list("docs")}</div>
-<div class="card"><h3>🧳 준비물<button class="ic" data-a="delmode" data-t="chk" title="삭제" aria-label="삭제">🗑</button></h3>${list("chk")}</div>
+<div class="card"><h3>🛂 비자·여권·보험</h3>${list("docs")}</div>
+<div class="card"><h3>🧳 준비물</h3>${list("chk")}</div>
 ${transportCard(c)}${fxCard(c)}</div>`;
 }
