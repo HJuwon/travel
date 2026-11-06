@@ -9,5 +9,5 @@ export const API_KEY = "YOUR_API_KEY";
 //   - 둘 다 공개돼도 되는 값이에요. 데이터는 입장 비밀번호로 DB에서 보호돼요.
 //   - ⚠ service_role / secret 키는 절대 넣지 마세요.
 //   - 비워 두면 지금처럼 이 브라우저에만 저장돼요 (비밀번호 화면 없음).
-export const SUPABASE_URL = "";
-export const SUPABASE_KEY = "";
+export const SUPABASE_URL = "https://mqmcipkmvvrhevavmihw.supabase.co";
+export const SUPABASE_KEY = "sb_publishable_wx-7_HtuX7JcLfVHyZY5Yg_5wr4jWMk";
