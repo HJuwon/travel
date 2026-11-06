@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>여행 플래너</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>✈️ 여행 플래너</h1>
+    <nav class="nav"><div id="tabs"></div></nav>
+  </div>
+
+  <!-- 나라 선택 -->
+  <div class="csr"><div class="cs" id="cs"></div><div class="csa" id="csa"></div></div>
+  <div id="warn"></div>
+  <div class="hd" id="hd"></div>
+
+  <!-- 일정 / 위시 (지도 + 목록) -->
+  <div id="plan" class="pl">
+    <div class="ptop"><div id="sw"></div></div>
+    <div class="mapcol"><div id="map"></div></div>
+    <div class="listcol">
+      <div class="dbox">
+        <div class="dr1"><div class="days" id="days"></div><div class="dact" id="dact"></div></div>
+        <div class="dr2" id="dtools"></div>
+      </div>
+      <div id="sheet"></div>
+      <div id="wish" hidden></div>
+    </div>
+  </div>
+
+  <!-- 준비 / 예산 / 날씨 탭 -->
+  <div id="prep" hidden></div>
+  <div id="bud" hidden></div>
+  <div id="wxt" hidden></div>
+</div>
+<div id="delbar"></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
