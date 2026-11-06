@@ -187,6 +187,22 @@ a{color:var(--accent-strong)}
 .wd{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}.wr{display:flex;align-items:center;gap:8px}.wi{font-size:26px}
 .warn{background:var(--warn-bg);color:var(--warn-text);border-radius:10px;padding:8px 12px}
 
+/* ---------- 입장 비밀번호 · 저장 상태 ---------- */
+body.locked>*:not(.gate){display:none!important}
+.gate{position:fixed;inset:0;display:grid;place-items:center;padding:20px;background:var(--bg);z-index:100}
+.gbox{width:min(340px,100%);display:flex;flex-direction:column;gap:12px;text-align:center}
+.glogo{font-size:44px;line-height:1}
+.gbox h1{margin:0;font-size:20px}
+.gbox p{margin:0;color:var(--muted);font-size:13px}
+.gbox input{text-align:center;font-size:16px;padding:12px}
+.gbox .btn{justify-content:center;padding:12px;font-size:15px}
+.gbox .btn:disabled{opacity:.6}
+.gbox .gerr{color:var(--danger);min-height:1.5em}
+.sync{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+.sync:not([hidden])~.seg{margin-left:10px}
+.sync[data-s=error],.sync[data-s=conflict]{color:var(--danger);cursor:pointer}
+.syncbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow-pop);width:max-content;max-width:calc(100vw - 24px)}
+
 @media(prefers-reduced-motion:reduce){.drawer{transition:none}}
 
 /* ---------- 태블릿: 지도는 버튼으로 여닫는 패널 ---------- */
@@ -207,6 +223,9 @@ a{color:var(--accent-strong)}
   .brand{font-size:18px}.bt{display:none}
   .country{padding:5px 10px}.country small{display:none}
   .seg button{padding:5px 10px}
+  .sync:not([data-s=error]):not([data-s=conflict]){display:none}
+  .top .sync~.seg{margin-left:auto}
+  .syncbar{bottom:76px}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--border);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around}
   .tabs button{flex:1;padding:8px 0}
   input,select,textarea{font-size:16px}

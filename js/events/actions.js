@@ -7,6 +7,7 @@ import { render } from "../render.js";
 import { G } from "../google/gm.js";
 import { fit, pick } from "../google/map.js";
 import { loadHours } from "../google/places.js";
+import { logout } from "../sync.js";
 
 // 지도 크기가 바뀌는 전환 뒤에 다시 맞추기
 const refit = () => setTimeout(() => { if (G.map) google.maps.event.trigger(G.map, "resize"); fit(); }, 60);
@@ -42,6 +43,7 @@ function onClick(e) {
       S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { mode: "plan", open: null, focus: 0, menu: "country" });
       break;
     case "sample": S.cs.push(SEED().cs[0]); S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { open: null, focus: 0, menu: null }); render(); refit(); return;
+    case "logout": if (confirm("이 기기에서 나갈까요? 다시 들어오려면 비밀번호가 필요해요.")) logout(); return;
     case "delc":
       if (!confirm(c.n + " 계획을 통째로 삭제할까요?")) return;
       S.cs.splice(S.sel, 1); S.sel = Math.max(0, S.sel - 1); Object.assign(UI, { open: null, focus: 0, menu: null });

@@ -1,6 +1,7 @@
 // 상단: 나라 선택 메뉴 · 탭 · 계획/대시보드 전환
 import { S, UI, cur } from "../state.js";
 import { $, esc } from "../utils.js";
+import { online } from "../sync.js";
 
 const TABS = [["plan", "일정"], ["prep", "준비"], ["bud", "예산"], ["wx", "날씨"]];
 
@@ -19,6 +20,7 @@ function countryMenu(c) {
     </div>
     <button class="dg" data-a="delc">이 나라 삭제</button>`;
   }
+  if (online) h += `<div class="msep"></div><button data-a="logout">이 기기에서 나가기</button>`;
   return h + `</div>`;
 }
 

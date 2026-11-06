@@ -21,16 +21,29 @@ if (!["plan", "prep", "bud", "wx"].includes(s.tab)) s.tab = "plan"; // 예전 '�
 ["del", "menu", "dsel", "wsel", "wmsg", "wmd", "wd", "pin", "day", "view"].forEach(k => delete s[k]);
 
 // 예전 버전 데이터 보정
-s.cs.forEach(c => {
+function fix(c) {
+  c.rows = c.rows || [];
   c.wish = c.wish || [];
   c.rate = c.rate || 0;
   c.nd = c.nd || 3;
   c.rows.forEach(r => { r.d = r.d || 1; if (r.s == "변경가능") r.s = "후보"; });
   c.tr = c.tr || {};
   c.prep = c.prep || newPrep();
-});
+}
+s.cs.forEach(fix);
 
 export const S = s;
+
+// 같이 쓰는 데이터 = 나라 목록(cs). 선택한 탭·나라 같은 건 기기마다 따로.
+export const sharedData = () => ({ v: S.v, cs: S.cs });
+export function applyRemote(data) {
+  S.cs = data.cs || [];
+  S.cs.forEach(fix);
+  if (S.sel >= S.cs.length) S.sel = 0;
+}
+
+// 저장 직후 호출할 함수 (sync.js가 서버 저장을 연결)
+export const hooks = { afterSave: null };
 
 export const UI = {
   mode: "plan",   // 일정 탭 안: "plan"(계획) | "dash"(대시보드)
@@ -44,6 +57,7 @@ export const UI = {
 
 export function save() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  if (hooks.afterSave) hooks.afterSave();
 }
 
 // 현재 선택한 나라

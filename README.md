@@ -45,6 +45,32 @@ npx serve .
 
 드래그 기능은 [SortableJS](https://github.com/SortableJS/Sortable)를 CDN(jsdelivr)에서 불러오므로 인터넷 연결이 필요합니다.
 
+## 같이 쓰기: Supabase + 입장 비밀번호 (선택)
+
+`js/config.js`의 Supabase 값을 채우면, 사이트에 들어올 때 **비밀번호 화면**이 먼저 나옵니다.
+비밀번호를 한 번 맞게 입력한 기기는 다음부터 바로 들어와지고, 모두 같은 데이터를 보고 수정합니다.
+다른 사람이 고친 내용은 새로고침하면 보이고, 동시에 고쳐서 충돌하면 알려 줍니다.
+비워 두면 지금처럼 각자 브라우저에만 저장됩니다.
+
+1. [supabase.com](https://supabase.com)에서 새 프로젝트를 만듭니다. **Region은 Northeast Asia (Seoul)** 로 고르세요. 나중에 바꿀 수 없습니다.
+2. 대시보드 → **SQL Editor**에 [`supabase/schema.sql`](supabase/schema.sql)을 통째로 붙여 넣고 Run 합니다.
+3. 같은 파일 맨 아래 "비밀번호 설정" 문장의 주석(`--`)을 풀고, `여기에_비밀번호`를 원하는 비밀번호로 바꿔 그 문장만 실행합니다.
+4. Project Settings → **API**의 Project URL과 publishable(anon) key를 `js/config.js`의 `SUPABASE_URL`, `SUPABASE_KEY`에 넣습니다.
+   - 둘 다 공개돼도 되는 값입니다. 데이터는 비밀번호가 맞을 때만 DB 함수로 읽고 쓸 수 있습니다.
+   - ⚠ `service_role` / secret 키는 절대 넣지 마세요.
+
+비밀번호를 바꾸려면 3번 문장을 새 비밀번호로 다시 실행하면 됩니다. 모든 기기가 로그아웃되고 새 비밀번호를 다시 입력해야 합니다.
+각 기기에서는 나라 메뉴 → **이 기기에서 나가기**로 비밀번호와 저장된 사본을 지울 수 있습니다.
+
+## Vercel 배포
+
+1. [vercel.com](https://vercel.com)에 GitHub 계정으로 가입하고, Add New → Project → 이 저장소를 Import 합니다.
+2. Framework Preset은 **Other**, Build Command는 비워 둡니다 (빌드 없는 정적 사이트).
+3. 이후 `main`에 push할 때마다 자동으로 배포됩니다.
+
+`vercel.json`에 서울 리전(`icn1`)을 지정해 두었습니다. 화면 파일은 Vercel의 전 세계 CDN에서 나가고, 데이터는 서울 Supabase와 직접 주고받습니다.
+구글 지도 키를 쓴다면 HTTP 리퍼러 제한에 Vercel 주소(`https://<프로젝트>.vercel.app/*`)도 추가하세요.
+
 ## 구글 지도 API 키 (선택)
 
 키가 없으면 장소 검색이 꺼지고, 지도는 좌표만 찍는 **간이 지도**로 나옵니다. 나머지 기능은 모두 동작합니다.
@@ -63,7 +89,8 @@ css/colors.css          🎨 모든 색 (라이트/다크, 카테고리 색). �
 css/style.css           레이아웃·모양 (색은 colors.css 변수만 사용)
 js/
   main.js               시작점 (이벤트 연결, 첫 렌더, 지도 스크립트 로드)
-  config.js             API 키
+  config.js             구글 지도 키, Supabase 주소·키
+  sync.js               Supabase 연동: 입장 비밀번호, 불러오기, 자동 저장, 충돌 알림
   constants.js          카테고리, 이동수단, 기본 체크리스트
   icons.js              카테고리 아이콘·색, 구글 장소 종류 → 카테고리
   seed.js               예시 데이터 (일본 4일)
@@ -81,6 +108,8 @@ js/
     prep.js · budget.js · weather.js
   google/               구글 지도, 장소(Places), 이동시간(Routes)
   events/               클릭, 입력, 드래그(SortableJS)
+supabase/schema.sql     DB 테이블, 비밀번호 확인, 읽기/쓰기 함수
+vercel.json             Vercel 설정 (서울 리전)
 ```
 
 ## GitHub Pages 배포
