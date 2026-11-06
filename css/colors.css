@@ -1,0 +1,72 @@
+/* =========================================================
+   🎨 색상 테마
+   앱에서 쓰는 모든 색은 이 파일에만 있습니다.
+   여기 값만 바꾸면 화면, 지도 마커, 동선까지 같이 바뀝니다.
+   (지도 마커·동선 색은 js/colors.js가 이 값을 읽어 씁니다)
+   ========================================================= */
+
+/* ---------- 라이트 모드 ---------- */
+:root{
+  /* 기본 */
+  --bg:#f1f6fb;              /* 페이지 배경 */
+  --surface:#fff;            /* 카드·버튼·입력칸 배경 */
+  --field:#f6f9fc;           /* 카드 안쪽 옅은 칸 (태그, 목록 카드) */
+  --text:#10253a;            /* 본문 글자 */
+  --muted:#62768a;           /* 보조 글자 (설명, 회색 글씨) */
+  --border:#dbe6f0;          /* 테두리·구분선 */
+
+  /* 강조 (메인 색) */
+  --accent:#0b84e5;          /* 선택된 탭·칩, 주요 버튼, 번호 배지, 링크 */
+  --accent-soft:#d9ebfa;     /* 강조색의 옅은 배경 (선택 테두리, 비용 태그, 막대 배경) */
+  --on-accent:#fff;          /* 강조색 위 글자 */
+  --on-accent-muted:rgba(255,255,255,.8);
+
+  /* 상태 */
+  --candidate:#9db0c2;       /* '후보' 장소 (점선 배지, 꺼진 토글) */
+  --danger:#e5484d;          /* 삭제 버튼, 삭제 선택 테두리 */
+  --danger-soft:rgba(229,72,77,.18); /* 삭제 모드에서 선택한 항목 배경 */
+  --danger-bar-bg:#fde2e2;   /* 삭제 모드 하단 바 */
+  --danger-bar-text:#7a1d1d;
+  --warn-bg:#fff4d6;         /* 안내 상자 (API 키 안내 등) */
+  --warn-text:#5b4300;
+  --toggle-knob:#fff;        /* 토글 스위치 동그라미 */
+
+  /* 그림자 */
+  --shadow:0 1px 2px rgba(20,32,43,.06);  /* 카드 */
+  --shadow-pop:0 8px 24px rgba(0,0,0,.2); /* ⋯ 메뉴 */
+  --shadow-bar:0 4px 16px rgba(0,0,0,.25);/* 하단 바 */
+
+  /* 지도 정보창 (구글 지도 위 흰 말풍선, 다크 모드에서도 흰색) */
+  --iw-text:#1f2328;
+  --iw-muted:#777;
+  --iw-line:#ddd;
+  --iw-button:#0b84e5;
+  --iw-button-text:#fff;
+
+  /* 지도 마커·동선 */
+  --pin-must:#0b84e5;        /* 필수 장소 */
+  --pin-candidate:#9db0c2;   /* 후보 장소 */
+  --pin-selected:#e5484d;    /* 선택한 장소 */
+  --pin-wish:#7c5cff;        /* 위시 장소 */
+  --pin-glyph:#fff;          /* 마커 안 번호 */
+  --pin-border:#fff;
+  --route-line:#0b84e5;      /* 동선 선 */
+}
+
+/* ---------- 다크 모드 (기기 설정이 다크일 때) ----------
+   여기 없는 값은 라이트 모드 값을 그대로 씁니다. */
+@media (prefers-color-scheme:dark){
+  :root{
+    color-scheme:dark;
+    --bg:#0c151d;
+    --surface:#15222d;
+    --field:#101b25;
+    --text:#e6eef5;
+    --muted:#8ea1b3;
+    --border:#243545;
+    --accent:#4aa8f0;
+    --accent-soft:#12304a;
+    --candidate:#5b6f82;
+    --shadow:none;
+  }
+}

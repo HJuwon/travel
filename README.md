@@ -43,9 +43,11 @@ VS Code를 쓴다면 Live Server 확장으로 열어도 됩니다.
 
 ```
 index.html              뼈대 마크업
-css/style.css
+css/colors.css          🎨 모든 색 (라이트/다크). 색을 바꾸려면 이 파일만 고치면 됨
+css/style.css           레이아웃·모양 (색은 colors.css 변수만 사용)
 js/
   main.js               시작점 (이벤트 연결, 첫 렌더, 지도 스크립트 로드)
+  colors.js             colors.css 값을 JS(지도 마커·동선)에서 읽는 도우미
   config.js             API 키
   constants.js          카테고리, 이동수단, 기본 체크리스트
   seed.js               예시 데이터 (일본 4일)

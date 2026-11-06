@@ -3,8 +3,8 @@ import { G } from "./gm.js";
 import { addPlace } from "./places.js";
 import { legs } from "./routes.js";
 import { S, cur, vis, nums } from "../state.js";
-import { STC } from "../constants.js";
 import { $, esc, hasXY } from "../utils.js";
+import { color } from "../colors.js";
 import { render } from "../render.js";
 
 export async function init() {
@@ -50,7 +50,7 @@ export function card(name, p) {
   const d = document.createElement("div");
   d.className = "iw";
   let h = `<b>${esc(name)}</b>`;
-  if (p && p.rating) h += `<div>⭐ ${p.rating} <span style="color:#777">(${p.userRatingCount || 0})</span></div>`;
+  if (p && p.rating) h += `<div>⭐ ${p.rating} <span style="color:var(--iw-muted)">(${p.userRatingCount || 0})</span></div>`;
   (p && p.reviews || []).slice(0, 3).forEach(v => {
     const t = String(v.text || "");
     h += `<div class="rv">⭐${v.rating} · ${esc(v.authorAttribution ? v.authorAttribution.displayName : "")}<br>${esc(t.length > 110 ? t.slice(0, 110) + "…" : t)}</div>`;
@@ -82,7 +82,7 @@ export function drawMarkers(doFit) {
   if (S.tab == "wish") {
     cur().wish.forEach((w, i) => {
       if (!hasXY(w)) return;
-      const pin = new G.PinEl({ glyph: String(i + 1), glyphColor: "#fff", background: S.wsel[i] ? "#e5484d" : "#7c5cff", borderColor: "#fff" });
+      const pin = new G.PinEl({ glyph: String(i + 1), glyphColor: color("pin-glyph"), background: color(S.wsel[i] ? "pin-selected" : "pin-wish"), borderColor: color("pin-border") });
       const m = new G.AME({ map: G.map, position: { lat: w.la, lng: w.lo }, content: pin.element, title: w.p });
       m.addListener("gmp-click", () => { G.iw.setContent(card(w.p, null)); G.iw.open({ map: G.map, anchor: m }); });
       G.mk["w" + i] = m;
@@ -95,7 +95,8 @@ export function drawMarkers(doFit) {
   const v = vis(), nm = nums(v);
   v.forEach((o, j) => {
     if (!hasXY(o.r)) return;
-    const pin = new G.PinEl({ glyph: String(nm[j]), glyphColor: "#fff", background: o.i == S.pin ? "#e5484d" : (STC[o.r.s] || "#0b84e5"), borderColor: "#fff" });
+    const bg = o.i == S.pin ? "pin-selected" : o.r.s == "후보" ? "pin-candidate" : "pin-must";
+    const pin = new G.PinEl({ glyph: String(nm[j]), glyphColor: color("pin-glyph"), background: color(bg), borderColor: color("pin-border") });
     const m = new G.AME({ map: G.map, position: { lat: o.r.la, lng: o.r.lo }, content: pin.element, title: o.r.p });
     m.addListener("gmp-click", () => choose(o.i));
     G.mk[o.i] = m;
@@ -103,7 +104,7 @@ export function drawMarkers(doFit) {
   G.line = new google.maps.Polyline({
     map: G.map,
     path: v.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => ({ lat: o.r.la, lng: o.r.lo })),
-    strokeColor: "#0b84e5", strokeOpacity: .7, strokeWeight: 3,
+    strokeColor: color("route-line"), strokeOpacity: .7, strokeWeight: 3,
   });
   if (doFit) fit();
 }

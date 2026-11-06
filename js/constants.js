@@ -6,7 +6,6 @@ export const MODES = { TRANSIT: "🚇 대중교통", WALKING: "🚶 도보", DRI
 
 // 구분: 필수 / 후보 (후보는 번호·동선·예산에서 빠짐)
 export const STS = ["필수", "후보"];
-export const STC = { "필수": "#0b84e5", "후보": "#9db0c2" };
 
 // 준비 탭 기본 체크리스트
 export const CHK0 = ["여권", "충전기·보조배터리", "멀티 어댑터", "상비약", "세면도구", "현지 결제 카드", "옷·신발", "우산"];
