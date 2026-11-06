@@ -127,6 +127,28 @@ a{color:var(--accent-strong)}
 .iw .rv{margin-top:6px;border-top:1px solid var(--iw-line);padding-top:4px}
 .iw .muted{color:var(--iw-muted)}
 .iw button{margin:6px 6px 0 0;padding:6px 10px;border-radius:8px;background:var(--iw-button);color:var(--iw-button-text)}
+.iwadd{display:flex;flex-wrap:wrap;margin-top:4px}.iwadd button{margin:6px 6px 0 0}
+.iwadd button:first-child{font-weight:700}
+
+/* 지도 위 주변 찾기 */
+.msep{flex:none;width:1px;height:18px;background:var(--border);margin:0 4px}
+.explore{position:absolute;top:8px;left:8px;right:8px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:6px;pointer-events:none}
+.explore>*{pointer-events:auto}
+.xq{display:flex;width:min(320px,100%);background:var(--surface);border:1px solid var(--border);border-radius:999px;box-shadow:var(--shadow-pop);overflow:hidden}
+.xq input{border:0;border-radius:0;background:transparent;padding:7px 4px 7px 14px}
+.xq input:focus{outline:0}
+.xq button{padding:0 12px}
+.xchips{display:flex;gap:6px;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:2px}
+.xchips .cf{flex:none;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.xchips .cf.on{background:var(--c);color:var(--on-cat);border-color:var(--c)}.xchips .cf.on svg{color:var(--on-cat)}
+.xagain{align-self:center;background:var(--accent);color:var(--on-accent);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;box-shadow:var(--shadow-pop)}
+.explore.busy .xq{opacity:.6}.explore.busy .xq button::after{content:"…"}
+.fpin{display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translateY(8px)}
+.fpin b{width:26px;height:26px;border-radius:8px;background:var(--c);color:var(--on-cat);display:grid;place-items:center;border:2px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.fpin span{margin-top:2px;font-size:11px;font-weight:600;color:var(--text);max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 3px var(--surface),0 0 3px var(--surface),0 0 3px var(--surface)}
+.fpin:hover span{max-width:none}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.2s;z-index:70;background:var(--text);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13px;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
 
 /* ---------- 대시보드 ---------- */
 .dash{padding:20px;display:grid;grid-template-columns:minmax(0,1fr) 34%;gap:18px;align-items:start;max-width:1500px;margin:0 auto}
@@ -226,6 +248,7 @@ body.locked>*:not(.gate){display:none!important}
   .sync:not([data-s=error]):not([data-s=conflict]){display:none}
   .top .sync~.seg{margin-left:auto}
   .syncbar{bottom:76px}
+  .toast{bottom:80px}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--border);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around}
   .tabs button{flex:1;padding:8px 0}
   input,select,textarea{font-size:16px}
@@ -238,7 +261,7 @@ body.locked>*:not(.gate){display:none!important}
   .dash{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:0 0 12px}
   .dside{display:contents}
   .dside .mapwrap{order:-1;position:sticky;top:52px;z-index:5;height:auto;border-width:0 0 1px;border-radius:0}
-  .dside .mapslot{height:30vh;min-height:200px;flex:none}
+  .dside .mapslot{height:42vh;min-height:260px;flex:none}
   .dside .legend{display:none}
   .maph{flex-wrap:nowrap;overflow-x:auto;padding:10px 12px}.maph .cf{flex:none;padding:6px 14px;font-size:13px}
   .days{padding:0 12px;grid-template-columns:1fr}

@@ -6,15 +6,16 @@ import { guessCat } from "../icons.js";
 import { render } from "../render.js";
 
 // d = 0 이면 보관함, 1 이상이면 그 Day에 추가
-export async function addPlace(p, d = 0) {
+// open = false 면 상세 패널을 열지 않고 지도도 그대로 (지도에서 연달아 추가할 때)
+export async function addPlace(p, d = 0, open = true) {
   const c = cur();
   if (!c) return;
   await p.fetchFields({ fields: ["displayName", "location", "formattedAddress", "types"] });
   const o = { p: p.displayName, id: p.id, la: p.location.lat(), lo: p.location.lng(), c: guessCat(p.types), m: "", w: 0 };
   if (d) { o.d = d; o.s = "필수"; c.rows.push(o); } else c.wish.push(o);
-  UI.open = { o };
+  if (open) UI.open = { o };
   render();
-  panTo(o);
+  if (open) panTo(o);
   autofill(p, o);
 }
 

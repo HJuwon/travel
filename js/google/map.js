@@ -1,9 +1,10 @@
 // 구글 지도: 초기화 · 카테고리 마커/동선 · 범위 맞추기 · 장소 고르기
 import { G } from "./gm.js";
 import { addPlace } from "./places.js";
+import { setupExplore } from "./explore.js";
 import { legs } from "./routes.js";
 import { S, UI, cur, byKey } from "../state.js";
-import { $, esc, hasXY } from "../utils.js";
+import { $, esc, hasXY, toast } from "../utils.js";
 import { color } from "../colors.js";
 import { render } from "../render.js";
 import { mapData, pinHTML, renderMapHead, drawMini } from "../views/mapview.js";
@@ -13,6 +14,7 @@ export async function init() {
   ({ AdvancedMarkerElement: G.AME } = await google.maps.importLibrary("marker"));
   const pl = await google.maps.importLibrary("places");
   G.Place = pl.Place;
+  G.Rank = pl.SearchNearbyRankPreference;
   try { ({ Route: G.Route } = await google.maps.importLibrary("routes")); } catch (e) {}
 
   const el = $("#map");
@@ -20,6 +22,7 @@ export async function init() {
   el.innerHTML = "";
   G.map = new Map(el, { center: { lat: 30, lng: 20 }, zoom: 2, mapId: "DEMO_MAP_ID", streetViewControl: false, mapTypeControl: false, fullscreenControl: false });
   G.iw = new InfoWindow();
+  setupExplore(el); // 지도 위 "주변 찾기"
 
   // 보관함 위 검색창 → 보관함에 추가
   const pac = new pl.PlaceAutocompleteElement();
@@ -37,14 +40,7 @@ export async function init() {
       const p = new G.Place({ id: e.placeId });
       await p.fetchFields({ fields: ["displayName", "location", "formattedAddress", "rating", "userRatingCount", "reviews", "googleMapsURI"] });
       const d = card(p.displayName, p);
-      const add = (label, day) => {
-        const b = document.createElement("button");
-        b.textContent = label;
-        b.onclick = () => { G.iw.close(); addPlace(p, day); };
-        d.appendChild(b);
-      };
-      add("+ 보관함", 0);
-      if (UI.mode == "plan" && UI.focus) add("+ Day " + UI.focus, UI.focus);
+      addBtns(d, p);
       G.iw.setContent(d);
       G.iw.setPosition(p.location);
       G.iw.open({ map: G.map });
@@ -69,6 +65,28 @@ export function card(name, p) {
   if (p && p.googleMapsURI) h += `<div style="margin-top:6px"><a target="_blank" rel="noopener" href="${p.googleMapsURI}">구글맵에서 리뷰 전체 보기</a></div>`;
   d.innerHTML = h;
   return d;
+}
+
+// 정보창 아래 "+ 보관함 / Day 1 / Day 2 …" 버튼. 추가해도 패널은 안 열고 알림만 (계속 찾고 추가)
+export function addBtns(box, p, done) {
+  const c = cur();
+  if (!c) return;
+  const row = document.createElement("div");
+  row.className = "iwadd";
+  const add = (label, day) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.onclick = async () => {
+      G.iw.close();
+      await addPlace(p, day, false);
+      toast("✓ " + (p.displayName || "장소") + " → " + (day ? "Day " + day : "보관함"));
+      if (done) done();
+    };
+    row.appendChild(b);
+  };
+  add("+ 보관함", 0);
+  for (let d = 1; d <= c.nd; d++) add("Day " + d, d);
+  box.appendChild(row);
 }
 
 // 지도 영역을 지금 화면(계획/대시보드) 쪽으로 옮기기

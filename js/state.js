@@ -50,7 +50,8 @@ export const UI = {
   focus: 1,       // 지도에 보여줄 Day (0 = 전체)
   open: null,     // 상세 패널에 열린 장소 { o: 장소 객체 }
   sel: null,      // 대시보드에서 강조한 장소 키 ("r3")
-  catF: "",       // 보관함 카테고리 필터
+  catF: "",       // 내 장소 카테고리 필터 (보관함 목록 + 지도)
+  found: 0,       // 지도에 떠 있는 주변 검색 결과 수
   menu: null,     // 열린 메뉴 ("country" | "day2" …)
   mapOn: false,   // 태블릿·폰에서 지도 패널 열림
 };

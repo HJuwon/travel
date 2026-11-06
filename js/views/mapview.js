@@ -9,14 +9,16 @@ export function mapData() {
   const c = cur(), pts = [], lines = [];
   if (!c) return { pts, lines };
   const days = UI.focus ? [UI.focus] : Array.from({ length: c.nd }, (_, i) => i + 1);
+  const ok = o => hasXY(o) && (!UI.catF || o.c == UI.catF); // 내 장소 카테고리 필터
   days.forEach(d => {
     const L = shown(dayRows(d)), nm = nums(L);
-    L.forEach((o, j) => { if (hasXY(o.r)) pts.push({ o: o.r, key: "r" + o.i, no: nm[j], cand: o.r.s == "후보" }); });
-    lines.push(L.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => o.r));
+    L.forEach((o, j) => { if (ok(o.r)) pts.push({ o: o.r, key: "r" + o.i, no: nm[j], cand: o.r.s == "후보" }); });
+    // 카테고리로 거르는 중엔 동선이 끊겨 보이니 숨김
+    if (!UI.catF) lines.push(L.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => o.r));
   });
   // 계획 모드에선 보관함 장소도 옅게 표시 (어디쯤인지 보면서 배치)
   if (UI.mode == "plan") c.wish.forEach((w, i) => {
-    if (hasXY(w) && (!UI.catF || w.c == UI.catF)) pts.push({ o: w, key: "w" + i, no: null, wish: true });
+    if (ok(w)) pts.push({ o: w, key: "w" + i, no: null, wish: true });
   });
   return { pts, lines };
 }
@@ -26,21 +28,25 @@ export function pinHTML(p, extra = "") {
   return `<div class="pin${p.cand ? " cand" : ""}${p.wish ? " wish" : ""}${sel ? " sel" : ""}" style="${cv(p.o.c)}${extra}" title="${esc(p.o.p)}" data-a="pin" data-k="${p.key}">${ic(p.o.c, 16)}${p.no != null ? `<i>${p.no}</i>` : ""}</div>`;
 }
 
-// 지도 위 Day 칩 + 아래 범례
+// 지도 위 Day 칩 + 내 장소 카테고리 필터 + 아래 범례
 export function renderMapHead(pts) {
   const c = cur(), dash = UI.mode == "dash";
   const head = $(dash ? "#dmh" : "#pmh"), lg = $(dash ? "#dlg" : "#plg");
   head.innerHTML = c ? [0, ...Array.from({ length: c.nd }, (_, i) => i + 1)].map(d =>
-    `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("") : "";
+    `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("")
+    + `<span class="msep" aria-hidden="true"></span>`
+    + ["", ...CATS].map(x => `<button class="cf${UI.catF == x ? " on" : ""}" data-a="cat" data-c="${x}" ${x ? `style="${cv(x)}" title="내 장소 중 ${x}만"` : `title="내 장소 모두"`}>${x ? ic(x, 13) + x : "모든 종류"}</button>`).join("")
+    : "";
   const used = new Set(pts.map(p => p.o.c));
   lg.innerHTML = CATS.filter(x => used.has(x)).map(x => `<span style="${cv(x)}">${ic(x, 13)}${x}</span>`).join("")
-    + (pts.some(p => p.wish) ? `<span>◌ 보관함</span>` : "");
+    + (pts.some(p => p.wish) ? `<span>◌ 보관함</span>` : "")
+    + (UI.found ? `<span>▢ 주변 검색 결과</span>` : "");
 }
 
 // 구글 지도 키가 없을 때: 좌표를 상자 안에 비율로 찍는 간이 지도
 export function drawMini(el, pts, lines) {
   el.classList.add("mini");
-  const note = `<div class="mininote">간이 지도 · js/config.js에 키를 넣으면 구글 지도로 바뀌어요</div>`;
+  const note = `<div class="mininote">간이 지도 · 구글 지도 키(js/keys.js)를 넣으면 구글 지도로 바뀌어요</div>`;
   if (!pts.length) { el.innerHTML = `<div class="empty">지도에 표시할 장소가 없어요</div>` + note; return; }
   // 범위는 일정 장소 기준 (보관함 장소가 멀리 있으면 화면 밖으로 잘림)
   const B = pts.some(p => !p.wish) ? pts.filter(p => !p.wish) : pts;

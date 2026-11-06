@@ -7,6 +7,7 @@ import { render } from "../render.js";
 import { G } from "../google/gm.js";
 import { fit, pick } from "../google/map.js";
 import { loadHours } from "../google/places.js";
+import { clearFound } from "../google/explore.js";
 import { logout } from "../sync.js";
 
 // 지도 크기가 바뀌는 전환 뒤에 다시 맞추기
@@ -37,7 +38,7 @@ function onClick(e) {
   switch (a) {
     // ----- 상단 -----
     case "menu": UI.menu = UI.menu == b.dataset.m ? null : b.dataset.m; break;
-    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: "" }); render(); refit(); return;
+    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: "" }); clearFound(); render(); refit(); return;
     case "addc":
       S.cs.push({ n: "새 나라", f: "🏳️", cur: "$", rate: 0, nd: 3, tr: {}, rows: [], wish: [], prep: newPrep() });
       S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { mode: "plan", open: null, focus: 0, menu: "country" });
