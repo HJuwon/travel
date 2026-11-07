@@ -24,6 +24,7 @@ export function renderMain() {
   $("#bud").hidden = S.tab != "bud";
   $("#wxt").hidden = S.tab != "wx";
   $("#planner").classList.toggle("mapon", UI.mapOn);
+  for (const k of ["map", "days", "cands"]) $("#dash").classList.toggle("fold-" + k, !!UI.fold[k]);
 
   if (plan) {
     placeMap();

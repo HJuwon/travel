@@ -1,6 +1,7 @@
 // 구글 지도: 초기화 · 카테고리 마커/동선 · 범위 맞추기 · 장소 고르기
 import { G } from "./gm.js";
 import { addPlace } from "./places.js";
+import { startPick } from "../views/addpanel.js";
 import { setupExplore } from "./explore.js";
 import { legs } from "./routes.js";
 import { S, UI, cur, byKey } from "../state.js";
@@ -14,6 +15,7 @@ export async function init() {
   ({ AdvancedMarkerElement: G.AME } = await google.maps.importLibrary("marker"));
   const pl = await google.maps.importLibrary("places");
   G.Place = pl.Place;
+  G.PAC = pl.PlaceAutocompleteElement;
   G.Rank = pl.SearchNearbyRankPreference;
   try { ({ Route: G.Route } = await google.maps.importLibrary("routes")); } catch (e) {}
 
@@ -26,7 +28,7 @@ export async function init() {
 
   // 보관함 위 검색창 → 보관함에 추가
   const pac = new pl.PlaceAutocompleteElement();
-  const onSel = async e => { const pp = e.placePrediction; await addPlace(pp ? pp.toPlace() : e.place, 0); };
+  const onSel = e => { const pp = e.placePrediction; startPick(pp ? pp.toPlace() : e.place); }; // 고르면 미리보기 → [추가]
   pac.addEventListener("gmp-select", onSel);
   pac.addEventListener("gmp-placeselect", onSel);
   $("#sw").innerHTML = "";
@@ -152,6 +154,7 @@ export function pick(k) {
     if (UI.sel) panTo(o);
     return;
   }
+  UI.add = null;
   UI.open = { o };
   render();
   panTo(o);

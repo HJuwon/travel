@@ -3,7 +3,6 @@
 //   → 장소나 순서, 이동수단이 바뀐 구간만 Routes API 호출 (요금·할당량 절약)
 import { G } from "./gm.js";
 import { S, UI, cur, dayRows, shown } from "../state.js";
-import { MODES } from "../constants.js";
 import { $, hasXY, hav, fmtT } from "../utils.js";
 
 const KEY = "trip_routes", MAX = 600;
@@ -19,11 +18,11 @@ function store() {
 
 const pending = {}; // 같은 구간을 동시에 두 번 요청하지 않게
 
-async function route(k, A, B) {
+async function route(k, A, B, mode) {
   if (k in cache) return cache[k];
   if (!pending[k]) pending[k] = (async () => {
     try {
-      const rs = await G.Route.computeRoutes({ origin: A, destination: B, travelMode: S.mode, fields: ["durationMillis", "distanceMeters"] });
+      const rs = await G.Route.computeRoutes({ origin: A, destination: B, travelMode: mode, fields: ["durationMillis", "distanceMeters"] });
       const r = rs.routes && rs.routes[0];
       cache[k] = r ? [r.durationMillis, r.distanceMeters] : 0;
       store();
@@ -38,20 +37,20 @@ async function route(k, A, B) {
 export async function legs() {
   const c = cur();
   if (S.tab != "plan" || UI.mode != "plan" || !c) return;
-  const mode = S.mode;
   for (let d = 1; d <= c.nd; d++) {
     const v = shown(dayRows(d));
     for (let j = 0; j < v.length - 1; j++) {
       const a = v[j].r, b = v[j + 1].r;
       if (a.s == "후보" || b.s == "후보" || !hasXY(a) || !hasXY(b)) continue;
 
+      const mode = a.tm || S.mode; // 구간별 이동수단
       const id = "#lg" + v[j].i + " .lt", A = { lat: a.la, lng: a.lo }, B = { lat: b.la, lng: b.lo };
       const k = [a.la, a.lo, b.la, b.lo, mode].join();
       if ($(id)) $(id).textContent = "↓ 직선 " + hav(A, B).toFixed(1) + "km";
       if (!G.Route) continue;
 
-      const r = await route(k, A, B);
-      if (r && $(id)) $(id).textContent = "↓ " + MODES[mode].split(" ")[0] + " " + fmtT(r[0]) + " · " + (r[1] / 1000).toFixed(1) + "km";
+      const r = await route(k, A, B, mode);
+      if (r && $(id)) $(id).textContent = "↓ " + fmtT(r[0]) + " · " + (r[1] / 1000).toFixed(1) + "km";
     }
   }
 }

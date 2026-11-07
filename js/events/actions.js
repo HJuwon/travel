@@ -1,5 +1,6 @@
 // data-a="..." 버튼·카드 클릭 처리
-import { S, UI, cur, moveTo, removePlace } from "../state.js";
+import { S, UI, cur, byKey, moveTo, removePlace } from "../state.js";
+import { openAdd, commitAdd } from "../views/addpanel.js";
 import { newPrep } from "../constants.js";
 import { SEED } from "../seed.js";
 import { todayDay, isPhone } from "../utils.js";
@@ -39,7 +40,7 @@ function onClick(e) {
   switch (a) {
     // ----- 상단 -----
     case "menu": UI.menu = UI.menu == b.dataset.m ? null : b.dataset.m; break;
-    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: "" }); clearFound(); render(); refit(); return;
+    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: [], pe: null, add: null }); clearFound(); render(); refit(); return;
     case "addc":
       S.cs.push({ n: "새 나라", f: "🏳️", cur: "$", rate: 0, nd: 3, tr: {}, rows: [], wish: [], prep: newPrep() });
       S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { mode: "plan", open: null, focus: 0, menu: "country" });
@@ -50,7 +51,7 @@ function onClick(e) {
       if (!confirm(c.n + " 계획을 통째로 삭제할까요?")) return;
       S.cs.splice(S.sel, 1); S.sel = Math.max(0, S.sel - 1); Object.assign(UI, { open: null, focus: 0, menu: null });
       break;
-    case "tab": S.tab = b.dataset.t; UI.open = null; window.scrollTo(0, 0); render(); refit(); return;
+    case "tab": S.tab = b.dataset.t; UI.open = null; UI.add = null; UI.pe = null; window.scrollTo(0, 0); render(); refit(); return;
     case "mode":
       UI.mode = b.dataset.m; UI.sel = null; UI.open = null; UI.mapOn = false;
       if (UI.mode == "dash") UI.focus = todayDay(c) || (isPhone() ? 1 : 0); // 여행 중이면 오늘 Day
@@ -62,28 +63,26 @@ function onClick(e) {
     case "addday": c.nd++; break;
     case "delday": UI.menu = null; if (!deleteDay(c, d)) { render(); return; } break;
     case "hc": S.hc = !S.hc; break;
+    case "fold": UI.fold[b.dataset.f] = !UI.fold[b.dataset.f]; render(); refit(); return;
     case "mapt": UI.mapOn = !UI.mapOn; render(); refit(); return;
     case "pin": pick(b.dataset.k); return;
 
     // ----- 장소 -----
     case "open": pick(b.dataset.k); return;
-    case "cat": UI.catF = b.dataset.c; break;
-    case "manual": {
-      const o = { p: "", id: "", la: null, lo: null, c: "관광", w: 0, m: "", d, s: "필수" };
-      c.rows.push(o); UI.open = { o };
+    case "cat": {   // 종류 필터 (여러 개 선택, 눌러서 켜고 끄기. 빈 값 = 초기화)
+      const x = b.dataset.c;
+      UI.catF = !x ? [] : UI.catF.includes(x) ? UI.catF.filter(y => y != x) : [...UI.catF, x];
       break;
     }
-    case "wmanual": {
-      if (!c) return;
-      const n = prompt("장소 이름");
-      if (!n || !n.trim()) return;
-      const o = { p: n.trim(), id: "", la: null, lo: null, c: "관광", m: "", w: 0 };
-      c.wish.push(o); UI.open = { o };
-      break;
-    }
+    case "lmode": { const o = byKey(b.dataset.k); if (o) o.tm = b.dataset.m; break; }  // 구간별 이동수단
+    case "manual": openAdd(d); return;     // + 장소 추가 (그 Day로)
+    case "wmanual": if (!c) return; openAdd(0); return; // + 직접 추가 (보관함으로)
 
     // ----- 상세 패널 -----
-    case "close": UI.open = null; break;
+    case "close": UI.open = null; UI.add = null; break;
+    case "adc": if (UI.add && UI.add.pv) UI.add.pv.c = b.dataset.c; break;
+    case "addreset": if (UI.add) UI.add.pv = null; break;
+    case "addgo": commitAdd(); return;
     case "setc": UI.open.o.c = b.dataset.c; break;
     case "hrs": loadHours(UI.open && UI.open.o); return;
     case "odel": {
@@ -94,8 +93,10 @@ function onClick(e) {
     }
 
     // ----- 준비 탭 -----
-    case "add": c.prep.bk.push({ t: "항공", n: "", d: "", no: "" }); break;
-    case "del": c.prep[b.dataset.l].splice(+b.dataset.i, 1); break;
+    case "add": c.prep.bk.push({ t: "항공", n: "", d: "", no: "" }); UI.pe = "bk" + (c.prep.bk.length - 1); break;
+    case "del": UI.pe = null; c.prep[b.dataset.l].splice(+b.dataset.i, 1); break;
+    case "pedit": UI.pe = b.dataset.pk; render(); document.querySelector("#prep [data-pe]")?.focus(); return;
+    case "pdone": UI.pe = null; break;
 
     default: return;
   }
@@ -106,7 +107,7 @@ export function bindActions() {
   document.addEventListener("click", onClick);
   // Esc로 패널·메뉴 닫기
   document.addEventListener("keydown", e => {
-    if (e.key != "Escape" || !(UI.open || UI.menu)) return;
-    UI.open = null; UI.menu = null; render();
+    if (e.key != "Escape" || !(UI.open || UI.menu || UI.add || UI.pe)) return;
+    UI.open = null; UI.menu = null; UI.add = null; UI.pe = null; render();
   });
 }

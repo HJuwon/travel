@@ -5,11 +5,17 @@ import { $, esc, gq } from "../utils.js";
 import { ic, cv } from "../icons.js";
 import { G } from "../google/gm.js";
 import { card } from "../google/map.js";
+import { autofill } from "../google/places.js";
+import { renderAdd } from "./addpanel.js";
+
+const tried = new WeakSet(); // 영업시간 자동 불러오기를 이미 시도한 장소
 
 export function renderDrawer() {
   const el = $("#drawer"), O = UI.open;
-  el.classList.toggle("on", !!O);
-  $("#scrim").hidden = !O;
+  const A = UI.add;
+  el.classList.toggle("on", !!(O || A));
+  $("#scrim").hidden = !(O || A);
+  if (A) { renderAdd(el); return; }          // 장소 추가 패널
   if (!O) { el.innerHTML = ""; return; }
 
   const o = O.o, c = cur(), inWish = c.wish.includes(o), food = o.c == "식사";
@@ -40,6 +46,8 @@ export function renderDrawer() {
   </div>`;
 
   if (o.id && G.Place) loadReviews(o);
+  // 영업시간이 비어 있으면 자동으로 불러오기 (한 번만 시도)
+  if (o.id && G.Place && !o.hrs && !tried.has(o)) { tried.add(o); autofill(new G.Place({ id: o.id }), o); }
 }
 
 // 구글 평점·리뷰 3개

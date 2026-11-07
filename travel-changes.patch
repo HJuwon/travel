@@ -1,0 +1,811 @@
+diff --git a/css/style.css b/css/style.css
+index dec1b3c..1974853 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -101,6 +101,11 @@ a{color:var(--accent-strong)}
+ .leg::before{content:"";position:absolute;left:15px;top:-3px;bottom:-3px;border-left:2px dotted var(--border)}
+ .dragging .leg{visibility:hidden}
+ .leg{display:flex;align-items:center;gap:8px}
++.leg{flex-wrap:wrap;row-gap:2px}
++.lms{display:inline-flex;gap:2px}
++.lm{width:24px;height:22px;border-radius:7px;font-size:12px;line-height:1;opacity:.45;border:1px solid transparent}
++.lm:hover{opacity:.8;background:var(--accent-soft)}
++.lm.on{opacity:1;border-color:var(--accent);background:var(--accent-soft)}
+ .gdir{font-size:11px;color:var(--accent-strong);text-decoration:none;white-space:nowrap;padding:2px 6px;border-radius:8px}
+ .gdir:hover{background:var(--accent-soft)}
+ .tl .gdir{flex:none;font-size:12px;border:1px solid var(--border);padding:4px 8px}
+@@ -108,7 +113,7 @@ a{color:var(--accent-strong)}
+ .chosen{box-shadow:var(--shadow-pop)}
+ 
+ /* ---------- 지도 ---------- */
+-.mapwrap{border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0;background:var(--surface)}
++.mapwrap{position:relative;border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0;background:var(--surface)}
+ .maph{display:flex;gap:6px;padding:12px;align-items:center;flex-wrap:wrap}
+ .mapslot{position:relative;flex:1;margin:0 12px;min-height:260px;display:flex}
+ #map{flex:1;border-radius:14px;border:1px solid var(--border);overflow:hidden;position:relative}
+@@ -123,9 +128,23 @@ a{color:var(--accent-strong)}
+ .pin.wish{width:26px;height:26px;background:var(--surface);color:var(--c);border:2px solid var(--c);opacity:.8}
+ .pin.wish svg{width:13px;height:13px}
+ .pin.sel{outline:3px solid var(--accent);outline-offset:2px;z-index:2;opacity:1}
+-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:10px 12px 12px;min-height:40px}
++.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:10px 12px 12px}
++.legend:empty{display:none}
+ .legend span{display:inline-flex;align-items:center;gap:4px}.legend svg{color:var(--c)}
+ 
++/* 접기·닫기 버튼 (좁은 화면에서만 보임) */
++.fbtn,.mclose,.chev,.secf{display:none}
++.secf[data-a]{cursor:pointer}
++.sec[data-a=fold]{cursor:pointer}
++.chev{display:inline-block;transition:transform .15s}
++/* 지도 필터 */
++.cf.flt i{font-style:normal;background:var(--accent);color:var(--on-accent);border-radius:8px;padding:0 6px;font-size:11px;line-height:16px}
++.mn.mfp{left:12px;right:auto;top:50px;min-width:230px;max-width:calc(100% - 24px);padding:8px 10px 10px}
++.mfp .mt{display:flex;justify-content:space-between;align-items:center;padding:4px 0 8px}
++.mfp .fr{font-size:12px;color:var(--accent-strong)}
++.mfp .cfs{display:flex;flex-wrap:wrap;gap:6px}
++.mfp .mu{margin:8px 0 0}
++
+ /* 구글 지도 정보창 */
+ .iw{max-width:260px;color:var(--iw-text);font:13px/1.5 system-ui,sans-serif}.iw b{font-size:14px}
+ .iw .rv{margin-top:6px;border-top:1px solid var(--iw-line);padding-top:4px}
+@@ -155,8 +174,8 @@ a{color:var(--accent-strong)}
+ .toast.show{opacity:1;transform:translate(-50%,0)}
+ 
+ /* ---------- 대시보드 ---------- */
+-.dash{padding:20px;display:grid;grid-template-columns:minmax(0,1fr) 34%;gap:18px;align-items:start;max-width:1500px;margin:0 auto}
+-.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
++.dash{padding:20px;display:grid;grid-template-columns:minmax(300px,32%) minmax(0,1fr) 290px;gap:18px;align-items:start;max-width:1700px;margin:0 auto}
++.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+ .dc{border:1px solid var(--border);border-radius:16px;padding:14px 16px;cursor:pointer}
+ .dc.focus{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+ .dch{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+@@ -169,9 +188,8 @@ a{color:var(--accent-strong)}
+ .tl small{color:var(--muted);display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .dcf{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);margin-top:8px;padding-top:10px;font-size:13px;color:var(--muted)}
+ .dcf button{color:var(--accent-strong);font-size:13px}
+-.dside{position:sticky;top:78px;display:flex;flex-direction:column;gap:14px;height:calc(100vh - 98px)}
+-.dside .mapwrap{flex:1 1 0;min-height:280px;border:1px solid var(--border);border-radius:16px}
+-.cands{flex:0 1 auto;max-height:42%;overflow:auto;border:1px solid var(--border);border-radius:16px;padding:14px 16px}
++.dmap{position:sticky;top:78px;height:calc(100vh - 98px);min-height:320px;border:1px solid var(--border);border-radius:16px}
++.cands{position:sticky;top:78px;max-height:calc(100vh - 98px);overflow:auto;border:1px solid var(--border);border-radius:16px;padding:14px 16px}
+ .chint{margin:2px 0 6px;font-size:12px;color:var(--muted)}
+ .cands li{cursor:pointer}
+ .cands li::after{display:none}
+@@ -196,6 +214,13 @@ a{color:var(--accent-strong)}
+ #drev .iw .muted{color:var(--muted)}
+ #drev .iw .rv{border-color:var(--border)}
+ 
++/* 장소 추가 패널 */
++.dbody.addb{overflow:visible}
++.addb .sw{position:relative;z-index:5}
++.pv{border:1px solid var(--border);border-left:3px solid var(--c);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--text)}
++.pv .hrs{white-space:pre-line;color:var(--text);font-size:13px}
++.atl{flex:1;font-size:16px}
++
+ /* ---------- 준비 · 예산 · 날씨 탭 ---------- */
+ .page{max-width:1100px;margin:0 auto;padding:20px}
+ .card{border:1px solid var(--border);border-radius:14px;padding:14px}
+@@ -203,7 +228,24 @@ a{color:var(--accent-strong)}
+ .g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+ .row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+ .row input[type=checkbox]{width:18px;height:18px;flex:none;accent-color:var(--accent)}
+-.bkr{border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:8px}
++.bks{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-bottom:6px}
++.bk{position:relative;display:flex;flex-direction:column;min-width:0;padding:5px 24px 5px 9px;border:1px solid var(--border);border-radius:10px;font-size:13px;line-height:1.35;cursor:pointer}
++.bk:hover{border-color:var(--accent)}
++.bk b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
++.bk small{color:var(--muted);font-size:11.5px}
++.bkt{font-size:11px;color:var(--accent-strong)}
++.bk .xb{position:absolute;top:1px;right:1px;padding:2px 6px;font-size:13px}
++.bk.editing{grid-column:1/-1;cursor:default;padding:8px 30px 8px 8px;gap:6px}
++.bk.editing .row{margin:0}
++.item{position:relative;margin-bottom:2px}
++.item .txt{flex:1;min-width:0;padding:5px 8px;border-radius:8px;cursor:pointer}
++.item .txt:hover,.fx .txt:hover{background:var(--accent-soft)}
++.txt.done{color:var(--muted);text-decoration:line-through}
++.fx .txt{padding:2px 8px;border-radius:8px;cursor:pointer}
++.item.editing input:not([type=checkbox]){flex:1}
++.okb{padding:5px 12px;font-size:12px;flex:none;color:var(--accent-strong)}
++.card.view{cursor:pointer}.card.view:hover{border-color:var(--accent)}
++.kv{display:flex;gap:8px;padding:3px 0;font-size:13px}.kv span:first-child{width:130px;flex:none;color:var(--muted)}
+ .xb{flex:none;color:var(--muted);padding:4px 8px;font-size:15px;border-radius:8px}.xb:hover{color:var(--danger)}
+ .add{margin-top:4px}
+ .tot{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:12px}.tot small{font-size:14px;color:var(--muted);font-weight:400}
+@@ -238,8 +280,10 @@ body.locked>*:not(.gate){display:none!important}
+   .planner>.mapwrap{position:fixed;right:0;top:58px;bottom:0;width:min(460px,92vw);z-index:30;box-shadow:var(--shadow-pop);transform:translateX(105%);transition:transform .22s}
+   .planner.mapon>.mapwrap{transform:none}
+   .maptoggle{display:inline-flex}
+-  .dash{grid-template-columns:1fr}
+-  .dside{position:static;height:auto}.dside .mapwrap{flex:none;height:400px}.cands{max-height:none}
++  .mclose{display:inline-flex;color:var(--accent-strong);border-color:var(--accent)}
++  .dash{grid-template-columns:minmax(0,1fr) 270px}
++  .dmap{grid-column:1/-1;position:static;height:340px;min-height:0}
++  .cands{position:static;max-height:none}
+ }
+ 
+ /* ---------- 휴대폰: 탭은 하단 바, 대시보드는 지도 → 그날 일정 → 후보 ---------- */
+@@ -263,14 +307,20 @@ body.locked>*:not(.gate){display:none!important}
+   .board{scroll-snap-type:x mandatory;min-height:60vh}.col{width:86vw;scroll-snap-align:start}
+ 
+   .dash{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:0 0 12px}
+-  .dside{display:contents}
+-  .dside .mapwrap{order:-1;position:sticky;top:52px;z-index:5;height:auto;border-width:0 0 1px;border-radius:0}
+-  .dside .mapslot{height:42vh;min-height:260px;flex:none}
+-  .dside .legend{display:none}
+-  .maph{flex-wrap:nowrap;overflow-x:auto;padding:10px 12px}.maph .cf{flex:none;padding:6px 14px;font-size:13px}
++  .dmap{order:-1;position:sticky;top:52px;z-index:5;height:auto;min-height:0;border-width:0 0 1px;border-radius:0}
++  .dmap .mapslot{height:26vh;min-height:170px;flex:none}
++  .dmap .legend{display:none}
++  .dmap .xq{display:none}
++  .maph{flex-wrap:nowrap;overflow-x:auto;padding:8px 12px}.maph .cf{flex:none;padding:5px 12px;font-size:13px}
++  .mn.mfp{top:46px}
++  .fbtn,.chev{display:inline-flex}.secf{display:flex;padding:0 14px}
++  .fbtn{flex:none;padding:5px 12px;font-size:13px}
++  .dash.fold-map .dmap .mapslot,.dash.fold-map .dmap .legend{display:none}
++  .dash.fold-days .days{display:none}.dash.fold-days .secf .chev{transform:rotate(-90deg)}
++  .dash.fold-cands .cands>:not(.sec){display:none}.dash.fold-cands .cands .chev{transform:rotate(-90deg)}
+   .days{padding:0 12px;grid-template-columns:1fr}
+   .dash.oneday .dc:not(.focus){display:none}
+   .dash.oneday .dc.focus{box-shadow:none;border-color:var(--border)}
+-  .cands{margin:0 12px}
++  .cands{position:static;max-height:none;margin:0 12px}
+   .page{padding:12px}
+ }
+diff --git a/index.html b/index.html
+index 3b345df..46ad206 100644
+--- a/index.html
++++ b/index.html
+@@ -37,26 +37,27 @@
+   </section>
+   <section class="mapwrap">
+     <div class="maph" id="pmh"></div>
++    <div class="mn mfp" id="pmf" hidden></div>
+     <div class="mapslot" id="pslot"><div id="map"></div></div>
+     <div class="legend" id="plg"></div>
+   </section>
+ </main>
+ 
+-<!-- 일정 · 대시보드 모드: Day별 일정 | 지도 + 후보 -->
++<!-- 일정 · 대시보드 모드: 지도 | Day별 일정 | 후보군  (휴대폰은 위에서 아래로 같은 순서) -->
+ <main class="dash" id="dash" hidden>
++  <section class="mapwrap dmap">
++    <div class="maph" id="dmh"></div>
++    <div class="mn mfp" id="dmf" hidden></div>
++    <div class="mapslot" id="dslot"></div>
++    <div class="legend" id="dlg"></div>
++  </section>
++  <div class="sec secf" data-a="fold" data-f="days">일정 <span class="chev">▾</span></div>
+   <div class="days" id="ddays"></div>
+-  <aside class="dside">
+-    <section class="mapwrap">
+-      <div class="maph" id="dmh"></div>
+-      <div class="mapslot" id="dslot"></div>
+-      <div class="legend" id="dlg"></div>
+-    </section>
+-    <section class="cands">
+-      <div class="sec">후보 <span id="ccount"></span></div>
+-      <p class="chint">시간이 남거나 계획이 바뀌면 여기서 골라요</p>
+-      <ul class="tl" id="cands"></ul>
+-    </section>
+-  </aside>
++  <section class="cands">
++    <div class="sec" data-a="fold" data-f="cands">후보 <span><span id="ccount"></span><span class="chev"> ▾</span></span></div>
++    <p class="chint">시간이 남거나 계획이 바뀌면 여기서 골라요</p>
++    <ul class="tl" id="cands"></ul>
++  </section>
+ </main>
+ 
+ <!-- 준비 / 예산 / 날씨 탭 -->
+diff --git a/js/events/actions.js b/js/events/actions.js
+index 8bf1a1b..0ac8a5e 100644
+--- a/js/events/actions.js
++++ b/js/events/actions.js
+@@ -1,5 +1,6 @@
+ // data-a="..." 버튼·카드 클릭 처리
+-import { S, UI, cur, moveTo, removePlace } from "../state.js";
++import { S, UI, cur, byKey, moveTo, removePlace } from "../state.js";
++import { openAdd, commitAdd } from "../views/addpanel.js";
+ import { newPrep } from "../constants.js";
+ import { SEED } from "../seed.js";
+ import { todayDay, isPhone } from "../utils.js";
+@@ -39,7 +40,7 @@ function onClick(e) {
+   switch (a) {
+     // ----- 상단 -----
+     case "menu": UI.menu = UI.menu == b.dataset.m ? null : b.dataset.m; break;
+-    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: "" }); clearFound(); render(); refit(); return;
++    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: [], pe: null, add: null }); clearFound(); render(); refit(); return;
+     case "addc":
+       S.cs.push({ n: "새 나라", f: "🏳️", cur: "$", rate: 0, nd: 3, tr: {}, rows: [], wish: [], prep: newPrep() });
+       S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { mode: "plan", open: null, focus: 0, menu: "country" });
+@@ -50,7 +51,7 @@ function onClick(e) {
+       if (!confirm(c.n + " 계획을 통째로 삭제할까요?")) return;
+       S.cs.splice(S.sel, 1); S.sel = Math.max(0, S.sel - 1); Object.assign(UI, { open: null, focus: 0, menu: null });
+       break;
+-    case "tab": S.tab = b.dataset.t; UI.open = null; window.scrollTo(0, 0); render(); refit(); return;
++    case "tab": S.tab = b.dataset.t; UI.open = null; UI.add = null; UI.pe = null; window.scrollTo(0, 0); render(); refit(); return;
+     case "mode":
+       UI.mode = b.dataset.m; UI.sel = null; UI.open = null; UI.mapOn = false;
+       if (UI.mode == "dash") UI.focus = todayDay(c) || (isPhone() ? 1 : 0); // 여행 중이면 오늘 Day
+@@ -62,28 +63,26 @@ function onClick(e) {
+     case "addday": c.nd++; break;
+     case "delday": UI.menu = null; if (!deleteDay(c, d)) { render(); return; } break;
+     case "hc": S.hc = !S.hc; break;
++    case "fold": UI.fold[b.dataset.f] = !UI.fold[b.dataset.f]; render(); refit(); return;
+     case "mapt": UI.mapOn = !UI.mapOn; render(); refit(); return;
+     case "pin": pick(b.dataset.k); return;
+ 
+     // ----- 장소 -----
+     case "open": pick(b.dataset.k); return;
+-    case "cat": UI.catF = b.dataset.c; break;
+-    case "manual": {
+-      const o = { p: "", id: "", la: null, lo: null, c: "관광", w: 0, m: "", d, s: "필수" };
+-      c.rows.push(o); UI.open = { o };
+-      break;
+-    }
+-    case "wmanual": {
+-      if (!c) return;
+-      const n = prompt("장소 이름");
+-      if (!n || !n.trim()) return;
+-      const o = { p: n.trim(), id: "", la: null, lo: null, c: "관광", m: "", w: 0 };
+-      c.wish.push(o); UI.open = { o };
++    case "cat": {   // 종류 필터 (여러 개 선택, 눌러서 켜고 끄기. 빈 값 = 초기화)
++      const x = b.dataset.c;
++      UI.catF = !x ? [] : UI.catF.includes(x) ? UI.catF.filter(y => y != x) : [...UI.catF, x];
+       break;
+     }
++    case "lmode": { const o = byKey(b.dataset.k); if (o) o.tm = b.dataset.m; break; }  // 구간별 이동수단
++    case "manual": openAdd(d); return;     // + 장소 추가 (그 Day로)
++    case "wmanual": if (!c) return; openAdd(0); return; // + 직접 추가 (보관함으로)
+ 
+     // ----- 상세 패널 -----
+-    case "close": UI.open = null; break;
++    case "close": UI.open = null; UI.add = null; break;
++    case "adc": if (UI.add && UI.add.pv) UI.add.pv.c = b.dataset.c; break;
++    case "addreset": if (UI.add) UI.add.pv = null; break;
++    case "addgo": commitAdd(); return;
+     case "setc": UI.open.o.c = b.dataset.c; break;
+     case "hrs": loadHours(UI.open && UI.open.o); return;
+     case "odel": {
+@@ -94,8 +93,10 @@ function onClick(e) {
+     }
+ 
+     // ----- 준비 탭 -----
+-    case "add": c.prep.bk.push({ t: "항공", n: "", d: "", no: "" }); break;
+-    case "del": c.prep[b.dataset.l].splice(+b.dataset.i, 1); break;
++    case "add": c.prep.bk.push({ t: "항공", n: "", d: "", no: "" }); UI.pe = "bk" + (c.prep.bk.length - 1); break;
++    case "del": UI.pe = null; c.prep[b.dataset.l].splice(+b.dataset.i, 1); break;
++    case "pedit": UI.pe = b.dataset.pk; render(); document.querySelector("#prep [data-pe]")?.focus(); return;
++    case "pdone": UI.pe = null; break;
+ 
+     default: return;
+   }
+@@ -106,7 +107,7 @@ export function bindActions() {
+   document.addEventListener("click", onClick);
+   // Esc로 패널·메뉴 닫기
+   document.addEventListener("keydown", e => {
+-    if (e.key != "Escape" || !(UI.open || UI.menu)) return;
+-    UI.open = null; UI.menu = null; render();
++    if (e.key != "Escape" || !(UI.open || UI.menu || UI.add || UI.pe)) return;
++    UI.open = null; UI.menu = null; UI.add = null; UI.pe = null; render();
+   });
+ }
+diff --git a/js/events/inputs.js b/js/events/inputs.js
+index ff95d1e..6b92f78 100644
+--- a/js/events/inputs.js
++++ b/js/events/inputs.js
+@@ -1,12 +1,17 @@
+ // 입력칸 변경 · Enter 키 · 환율 계산기
+-import { S, UI, cur, moveTo } from "../state.js";
++import { UI, cur, moveTo, save } from "../state.js";
++import { commitAdd } from "../views/addpanel.js";
+ import { render, renderMain } from "../render.js";
+ import { renderDrawer } from "../views/drawer.js";
+ import { fx } from "../views/prep.js";
+ 
+ function onChange(e) {
+   const t = e.target, c = cur();
+-  if (t.dataset.mode) { S.mode = t.value; render(); return; }   // 이동수단
++  // 장소 추가 패널
++  if (t.dataset.ad && UI.add) {
++    if (t.dataset.ad == "at") UI.add.d = +t.value;
++    return;
++  }
+ 
+   // 상세 패널
+   const f = t.dataset.f;
+@@ -25,6 +30,7 @@ function onChange(e) {
+   if (t.dataset.top) c[k] = k == "rate" ? +v || 0 : v;            // 나라 정보 (이름·통화·환율·시작일)
+   else if (t.dataset.tr) c.tr[k] = v;                            // 교통·결제
+   else if (t.dataset.l) c.prep[t.dataset.l][+t.dataset.i][k] = v; // 준비 탭 목록
++  if (t.dataset.pe) { save(); return; }                           // 수정 중에는 다시 그리지 않음 (포커스 유지)
+   render();
+ }
+ 
+@@ -38,6 +44,10 @@ function onKeydown(e) {
+     document.querySelector(`[data-add="${l}"]`)?.focus();
+     return;
+   }
++  // 준비 탭 수정 중 Enter → 확정
++  if (e.key == "Enter" && t.dataset && t.dataset.pe) { t.blur(); UI.pe = null; render(); return; }
++  // 장소 추가 패널 이름 칸 Enter → 추가
++  if (e.key == "Enter" && t.dataset && t.dataset.ad == "name") { e.preventDefault(); commitAdd(); return; }
+   // 카드에 포커스 + Enter → 열기
+   if (e.key == "Enter" && t.classList && t.classList.contains("pcard")) t.click();
+ }
+diff --git a/js/google/gm.js b/js/google/gm.js
+index e62572e..2dc1fc1 100644
+--- a/js/google/gm.js
++++ b/js/google/gm.js
+@@ -3,7 +3,8 @@
+ export const G = {
+   map: null,     // google.maps.Map
+   iw: null,      // InfoWindow (지도 위 관광지 아이콘 클릭용)
+-  Place: null,   // places.Place 클래스
++  Place: null,
++  PAC: null,     // places.PlaceAutocompleteElement 클래스   // places.Place 클래스
+   AME: null,     // AdvancedMarkerElement
+   Route: null,   // routes.Route (이동시간)
+   mk: {},        // 현재 마커들 (키 → 마커)
+diff --git a/js/google/map.js b/js/google/map.js
+index 75bd37e..1a44b66 100644
+--- a/js/google/map.js
++++ b/js/google/map.js
+@@ -1,6 +1,7 @@
+ // 구글 지도: 초기화 · 카테고리 마커/동선 · 범위 맞추기 · 장소 고르기
+ import { G } from "./gm.js";
+ import { addPlace } from "./places.js";
++import { startPick } from "../views/addpanel.js";
+ import { setupExplore } from "./explore.js";
+ import { legs } from "./routes.js";
+ import { S, UI, cur, byKey } from "../state.js";
+@@ -14,6 +15,7 @@ export async function init() {
+   ({ AdvancedMarkerElement: G.AME } = await google.maps.importLibrary("marker"));
+   const pl = await google.maps.importLibrary("places");
+   G.Place = pl.Place;
++  G.PAC = pl.PlaceAutocompleteElement;
+   G.Rank = pl.SearchNearbyRankPreference;
+   try { ({ Route: G.Route } = await google.maps.importLibrary("routes")); } catch (e) {}
+ 
+@@ -26,7 +28,7 @@ export async function init() {
+ 
+   // 보관함 위 검색창 → 보관함에 추가
+   const pac = new pl.PlaceAutocompleteElement();
+-  const onSel = async e => { const pp = e.placePrediction; await addPlace(pp ? pp.toPlace() : e.place, 0); };
++  const onSel = e => { const pp = e.placePrediction; startPick(pp ? pp.toPlace() : e.place); }; // 고르면 미리보기 → [추가]
+   pac.addEventListener("gmp-select", onSel);
+   pac.addEventListener("gmp-placeselect", onSel);
+   $("#sw").innerHTML = "";
+@@ -152,6 +154,7 @@ export function pick(k) {
+     if (UI.sel) panTo(o);
+     return;
+   }
++  UI.add = null;
+   UI.open = { o };
+   render();
+   panTo(o);
+diff --git a/js/google/routes.js b/js/google/routes.js
+index 0c601b8..61ec8d6 100644
+--- a/js/google/routes.js
++++ b/js/google/routes.js
+@@ -3,7 +3,6 @@
+ //   → 장소나 순서, 이동수단이 바뀐 구간만 Routes API 호출 (요금·할당량 절약)
+ import { G } from "./gm.js";
+ import { S, UI, cur, dayRows, shown } from "../state.js";
+-import { MODES } from "../constants.js";
+ import { $, hasXY, hav, fmtT } from "../utils.js";
+ 
+ const KEY = "trip_routes", MAX = 600;
+@@ -19,11 +18,11 @@ function store() {
+ 
+ const pending = {}; // 같은 구간을 동시에 두 번 요청하지 않게
+ 
+-async function route(k, A, B) {
++async function route(k, A, B, mode) {
+   if (k in cache) return cache[k];
+   if (!pending[k]) pending[k] = (async () => {
+     try {
+-      const rs = await G.Route.computeRoutes({ origin: A, destination: B, travelMode: S.mode, fields: ["durationMillis", "distanceMeters"] });
++      const rs = await G.Route.computeRoutes({ origin: A, destination: B, travelMode: mode, fields: ["durationMillis", "distanceMeters"] });
+       const r = rs.routes && rs.routes[0];
+       cache[k] = r ? [r.durationMillis, r.distanceMeters] : 0;
+       store();
+@@ -38,20 +37,20 @@ async function route(k, A, B) {
+ export async function legs() {
+   const c = cur();
+   if (S.tab != "plan" || UI.mode != "plan" || !c) return;
+-  const mode = S.mode;
+   for (let d = 1; d <= c.nd; d++) {
+     const v = shown(dayRows(d));
+     for (let j = 0; j < v.length - 1; j++) {
+       const a = v[j].r, b = v[j + 1].r;
+       if (a.s == "후보" || b.s == "후보" || !hasXY(a) || !hasXY(b)) continue;
+ 
++      const mode = a.tm || S.mode; // 구간별 이동수단
+       const id = "#lg" + v[j].i + " .lt", A = { lat: a.la, lng: a.lo }, B = { lat: b.la, lng: b.lo };
+       const k = [a.la, a.lo, b.la, b.lo, mode].join();
+       if ($(id)) $(id).textContent = "↓ 직선 " + hav(A, B).toFixed(1) + "km";
+       if (!G.Route) continue;
+ 
+-      const r = await route(k, A, B);
+-      if (r && $(id)) $(id).textContent = "↓ " + MODES[mode].split(" ")[0] + " " + fmtT(r[0]) + " · " + (r[1] / 1000).toFixed(1) + "km";
++      const r = await route(k, A, B, mode);
++      if (r && $(id)) $(id).textContent = "↓ " + fmtT(r[0]) + " · " + (r[1] / 1000).toFixed(1) + "km";
+     }
+   }
+ }
+diff --git a/js/render.js b/js/render.js
+index 86eb6c6..7f1d574 100644
+--- a/js/render.js
++++ b/js/render.js
+@@ -24,6 +24,7 @@ export function renderMain() {
+   $("#bud").hidden = S.tab != "bud";
+   $("#wxt").hidden = S.tab != "wx";
+   $("#planner").classList.toggle("mapon", UI.mapOn);
++  for (const k of ["map", "days", "cands"]) $("#dash").classList.toggle("fold-" + k, !!UI.fold[k]);
+ 
+   if (plan) {
+     placeMap();
+diff --git a/js/state.js b/js/state.js
+index ce4b054..de54a2f 100644
+--- a/js/state.js
++++ b/js/state.js
+@@ -50,7 +50,10 @@ export const UI = {
+   focus: 1,       // 지도에 보여줄 Day (0 = 전체)
+   open: null,     // 상세 패널에 열린 장소 { o: 장소 객체 }
+   sel: null,      // 대시보드에서 강조한 장소 키 ("r3")
+-  catF: "",       // 내 장소 카테고리 필터 (보관함 목록 + 지도)
++  catF: [],       // 내 장소 카테고리 필터 — 여러 개 선택 (보관함 목록 + 지도). 비어 있으면 전부
++  fold: {},       // 휴대폰 대시보드에서 접은 구역 { map, days, cands }
++  pe: null,       // 준비 탭에서 수정 중인 항목 키 ("bk0" | "docs2" | "tr" | "fx" …)
++  add: null,      // 장소 추가 패널 { d: 0=보관함|Day, pv: 고른 장소 미리보기, busy }
+   found: 0,       // 지도에 떠 있는 주변 검색 결과 수
+   menu: null,     // 열린 메뉴 ("country" | "day2" …)
+   mapOn: false,   // 태블릿·폰에서 지도 패널 열림
+@@ -74,6 +77,9 @@ export const byKey = k => {
+ // 한 Day의 장소들 (원래 인덱스 i 유지)
+ export const dayRows = d => cur().rows.map((r, i) => ({ r, i })).filter(o => o.r.d == d);
+ 
++// 카테고리 필터에 걸리는지 (필터가 비어 있으면 전부 통과)
++export const catOn = c => !UI.catF.length || UI.catF.includes(c);
++
+ // 후보 숨기기 적용
+ export const shown = list => list.filter(o => !(S.hc && o.r.s == "후보"));
+ 
+diff --git a/js/views/addpanel.js b/js/views/addpanel.js
+new file mode 100644
+index 0000000..ec9ba7b
+--- /dev/null
++++ b/js/views/addpanel.js
+@@ -0,0 +1,107 @@
++// 장소 추가 패널: 검색(자동완성) → 고른 장소 미리보기(영업시간 자동 불러옴) → [추가] 눌러야 추가
++//   + 검색이 안 되는 곳은 이름만 입력해서 추가
++import { UI, cur } from "../state.js";
++import { CATS } from "../constants.js";
++import { $, esc, toast } from "../utils.js";
++import { ic, cv, guessCat } from "../icons.js";
++import { G } from "../google/gm.js";
++import { fmtHours } from "../google/places.js";
++import { panTo } from "../google/map.js";
++import { render } from "../render.js";
++
++let ac = null; // 자동완성 입력 요소 (다시 그려도 같은 요소를 계속 씀)
++
++function searchEl() {
++  if (!G.Place || !G.PAC) return null;
++  if (!ac) {
++    ac = new G.PAC();
++    const onSel = e => { const pp = e.placePrediction; startPick(pp ? pp.toPlace() : e.place); };
++    ac.addEventListener("gmp-select", onSel);
++    ac.addEventListener("gmp-placeselect", onSel);
++  }
++  return ac;
++}
++
++// d = 0 이면 보관함, 1 이상이면 그 Day에 넣을 장소를 고르는 패널 열기
++export function openAdd(d = 0) {
++  UI.open = null;
++  UI.add = { d, pv: null, busy: false };
++  const s = searchEl();
++  if (s) {
++    try { s.value = ""; } catch (e) {}
++    try { if (G.map && G.map.getBounds()) s.locationBias = G.map.getBounds(); } catch (e) {}
++  }
++  render();
++  setTimeout(() => { try { (searchEl() || $("[data-ad=name]")).focus(); } catch (e) {} }, 80);
++}
++
++// 검색 결과를 골랐을 때: 정보를 불러와 미리보기만 보여 줌 (아직 추가 안 됨)
++export async function startPick(place) {
++  if (!UI.add) UI.add = { d: 0, pv: null, busy: false };
++  const A = UI.add;
++  UI.open = null;
++  A.busy = true;
++  render();
++  try {
++    await place.fetchFields({ fields: ["displayName", "location", "formattedAddress", "types", "rating", "userRatingCount", "regularOpeningHours", "websiteUri", "priceLevel"] });
++    const pv = { p: place.displayName, id: place.id, la: place.location.lat(), lo: place.location.lng(), c: guessCat(place.types), w: 0, m: "" };
++    const f = fmtHours(place.regularOpeningHours);
++    if (f) { pv.hrs = f.text; if (f.brk) pv.brk = f.brk; }
++    if (place.websiteUri) pv.web = place.websiteUri;
++    if (String(place.priceLevel).indexOf("FREE") > -1) pv.fee = "무료";
++    A.pv = pv;
++    A.x = { addr: place.formattedAddress || "", rating: place.rating, n: place.userRatingCount };
++  } catch (e) {
++    console.error(e);
++    toast("장소 정보를 불러오지 못했어요");
++  }
++  A.busy = false;
++  if (UI.add === A) render();
++}
++
++// [추가] 버튼
++export function commitAdd() {
++  const A = UI.add, c = cur();
++  if (!A || !c) return;
++  const inp = $("[data-ad=name]");
++  const name = ((inp && inp.value) || (A.pv && A.pv.p) || "").trim();
++  if (!name) { toast("장소를 검색하거나 이름을 입력하세요"); return; }
++  const o = A.pv ? { ...A.pv, p: name } : { p: name, id: "", la: null, lo: null, c: "관광", w: 0, m: "" };
++  if (A.d) { o.d = A.d; o.s = "필수"; c.rows.push(o); } else c.wish.push(o);
++  UI.add = null;
++  render();
++  toast("✓ " + name + " → " + (A.d ? "Day " + A.d : "보관함"));
++  panTo(o);
++}
++
++export function renderAdd(el) {
++  const A = UI.add, c = cur(), pv = A.pv, x = A.x || {};
++  const dest = `<label class="f">추가할 위치<select data-ad="at"><option value="0" ${A.d ? "" : "selected"}>보관함</option>${Array.from({ length: c.nd }, (_, k) => `<option value="${k + 1}" ${A.d == k + 1 ? "selected" : ""}>Day ${k + 1}</option>`).join("")}</select></label>`;
++
++  let body = "";
++  if (A.busy) body += `<div class="empty">장소 정보를 불러오는 중…</div>`;
++  else if (pv) {
++    body += `<div class="pv" style="${cv(pv.c)}">
++      ${x.addr ? `<div class="mu">${esc(x.addr)}</div>` : ""}
++      ${x.rating ? `<div>⭐ ${x.rating} <span class="mu">(${x.n || 0})</span></div>` : ""}
++      <div class="segc" style="margin-top:8px">${CATS.map(k => `<button class="cf${pv.c == k ? " on" : ""}" data-a="adc" data-c="${k}" style="${cv(k)}">${ic(k, 13)}${k}</button>`).join("")}</div>
++      <div class="f" style="margin-top:8px">영업시간 (자동)<div class="hrs">${pv.hrs ? esc(pv.hrs) : "구글에 영업시간 정보가 없어요"}</div></div>
++      ${pv.brk ? `<div class="mu">브레이크타임 ${esc(pv.brk)}</div>` : ""}
++    </div>
++    <button class="btn" data-a="addreset" style="align-self:flex-start">다른 장소 검색</button>`;
++  } else {
++    body += `<div class="f">장소 검색<div id="addsearch" class="sw">${G.Place ? "" : `<div class="search">🔍 검색은 지도 키가 필요해요<small>js/keys.js의 API_KEY</small></div>`}</div></div>`;
++  }
++
++  el.innerHTML = `<div class="dhd"><span class="ci" style="--c:var(--accent)">＋</span><b class="atl">장소 추가</b><button class="x" data-a="close" aria-label="닫기">✕</button></div>
++  <div class="dbody addb">
++    ${body}
++    <label class="f">${pv ? "이름" : "검색이 안 되면 이름만 직접 입력"}<input data-ad="name" placeholder="장소 이름" value="${esc(pv ? pv.p : "")}"></label>
++    ${dest}
++    <p class="mu" style="margin:0">아래 [추가]를 눌러야 일정에 들어가요.</p>
++  </div>
++  <div class="dft"><button class="btn p" data-a="addgo">추가</button><button class="btn" data-a="close">취소</button></div>`;
++
++  const slot = $("#addsearch"), s = searchEl();
++  if (slot && s) slot.appendChild(s);
++}
+diff --git a/js/views/board.js b/js/views/board.js
+index 3b96b37..670efdd 100644
+--- a/js/views/board.js
++++ b/js/views/board.js
+@@ -1,5 +1,5 @@
+ // 계획 모드: 왼쪽 보관함 + 가운데 Day 칸 (끌어서 배치)
+-import { S, UI, cur, dayRows, shown, nums } from "../state.js";
++import { S, UI, cur, dayRows, shown, nums, catOn } from "../state.js";
+ import { CATS, MODES } from "../constants.js";
+ import { $, esc, won, hasXY, dayLabel, dirURL } from "../utils.js";
+ import { ic, cv } from "../icons.js";
+@@ -12,10 +12,10 @@ export function renderWish() {
+ 
+   $("#wcount").textContent = c.wish.length + "곳";
+   $("#wcats").innerHTML = ["", ...CATS].map(x =>
+-    `<button class="cf${UI.catF == x ? " on" : ""}" data-a="cat" data-c="${x}" ${x ? `style="${cv(x)}"` : ""}>${x ? ic(x, 13) + x : "전체"}</button>`
++    `<button class="cf${(x ? UI.catF.includes(x) : !UI.catF.length) ? " on" : ""}" data-a="cat" data-c="${x}" ${x ? `style="${cv(x)}"` : ""}>${x ? ic(x, 13) + x : "전체"}</button>`
+   ).join("");
+ 
+-  el.innerHTML = c.wish.map((w, i) => pcard(w, "w" + i, null, c.cur, UI.catF && w.c != UI.catF)).join("")
++  el.innerHTML = c.wish.map((w, i) => pcard(w, "w" + i, null, c.cur, !catOn(w.c))).join("")
+     + (c.wish.length ? "" : `<div class="empty">장소를 검색하거나 지도에서 골라<br>가고 싶은 곳을 모아 두세요</div>`);
+   sortable(el);
+ }
+@@ -25,7 +25,6 @@ function bar(c) {
+   return `<h2>일정</h2><span class="sub">${range}</span>`
+     + (c.start ? "" : `<label class="sbtn" title="Day마다 날짜와 날씨가 표시돼요">시작일<input type="date" data-top="1" data-k="start"></label>`)
+     + `<span class="sp"></span>`
+-    + `<label class="sbtn" title="카드 사이 이동시간 계산 기준 (지도 키 필요)">이동<select data-mode="1" aria-label="이동수단">${Object.keys(MODES).map(k => `<option value="${k}" ${k == S.mode ? "selected" : ""}>${MODES[k]}</option>`).join("")}</select></label>`
+     + `<button class="sbtn${S.hc ? " on" : ""}" data-a="hc">${S.hc ? "후보 보이기" : "후보 숨기기"}</button>`
+     + `<button class="sbtn maptoggle${UI.mapOn ? " on" : ""}" data-a="mapt">🗺 지도</button>`;
+ }
+@@ -49,7 +48,12 @@ function column(c, d) {
+     h += pcard(o.r, "r" + o.i, hid ? null : nm[j], c.cur, hid);
+     // 다음 장소까지 이동 구간 (google/routes.js가 시간을 채움)
+     const n = vis[j + 1];
+-    if (!hid && n && o.r.s != "후보" && n.r.s != "후보" && hasXY(o.r) && hasXY(n.r)) h += `<div class="leg" id="lg${o.i}"><span class="lt">↓</span><a class="gdir" href="${dirURL(o.r, n.r, S.mode)}" target="_blank" rel="noopener" title="구글맵에서 이 구간 길찾기">길찾기 ↗</a></div>`;
++    if (!hid && n && o.r.s != "후보" && n.r.s != "후보" && hasXY(o.r) && hasXY(n.r)) {
++      // 구간마다 이동수단을 따로 고름 (앞 장소 o.r.tm 에 저장)
++      const m = o.r.tm || S.mode;
++      const mb = Object.keys(MODES).map(k => `<button class="lm${k == m ? " on" : ""}" data-a="lmode" data-k="r${o.i}" data-m="${k}" title="${MODES[k].slice(2)}" aria-label="${MODES[k]}">${MODES[k].split(" ")[0]}</button>`).join("");
++      h += `<div class="leg" id="lg${o.i}"><span class="lt">↓</span><span class="lms">${mb}</span><a class="gdir" href="${dirURL(o.r, n.r, m)}" target="_blank" rel="noopener" title="구글맵에서 이 구간 길찾기">길찾기 ↗</a></div>`;
++    }
+   });
+ 
+   return h + `</div><button class="addc" data-a="manual" data-d="${d}">+ 장소 추가</button></div>`;
+diff --git a/js/views/dash.js b/js/views/dash.js
+index 5c2155a..44d4327 100644
+--- a/js/views/dash.js
++++ b/js/views/dash.js
+@@ -15,7 +15,7 @@ export function renderDash() {
+     const L = c.rows.filter(r => r.d == d && r.s != "후보");
+     h += `<div class="dc${UI.focus == d ? " focus" : ""}" data-a="focus" data-d="${d}">
+       <div class="dch"><div><b>Day ${d}</b><small>${dayLabel(c, d)}</small></div><div class="wx" data-wxd="${d}"></div></div>
+-      <ul class="tl">${L.map((r, j) => `<li style="${cv(r.c)}"><span class="ci">${ic(r.c, 15)}</span><div class="t"><b>${j + 1}. ${esc(r.p) || "(이름 없음)"}</b><small>${esc(line(r))}</small></div>${hasXY(r) ? `<a class="gdir" href="${dirURL(j && hasXY(L[j - 1]) ? L[j - 1] : null, r, S.mode)}" target="_blank" rel="noopener" title="${j ? "앞 장소에서" : "현재 위치에서"} 여기까지 구글맵 길찾기">길찾기 ↗</a>` : ""}</li>`).join("") || `<li class="empty">아직 장소가 없어요</li>`}</ul>
++      <ul class="tl">${L.map((r, j) => `<li style="${cv(r.c)}"><span class="ci">${ic(r.c, 15)}</span><div class="t"><b>${j + 1}. ${esc(r.p) || "(이름 없음)"}</b><small>${esc(line(r))}</small></div>${hasXY(r) ? `<a class="gdir" href="${dirURL(j && hasXY(L[j - 1]) ? L[j - 1] : null, r, j && L[j - 1].tm || S.mode)}" target="_blank" rel="noopener" title="${j ? "앞 장소에서" : "현재 위치에서"} 여기까지 구글맵 길찾기">길찾기 ↗</a>` : ""}</li>`).join("") || `<li class="empty">아직 장소가 없어요</li>`}</ul>
+       <div class="dcf"><span>${L.length}곳</span><button data-a="edit" data-d="${d}">계획에서 편집 →</button></div>
+     </div>`;
+   }
+diff --git a/js/views/drawer.js b/js/views/drawer.js
+index 970fc17..b8bdeb6 100644
+--- a/js/views/drawer.js
++++ b/js/views/drawer.js
+@@ -5,11 +5,17 @@ import { $, esc, gq } from "../utils.js";
+ import { ic, cv } from "../icons.js";
+ import { G } from "../google/gm.js";
+ import { card } from "../google/map.js";
++import { autofill } from "../google/places.js";
++import { renderAdd } from "./addpanel.js";
++
++const tried = new WeakSet(); // 영업시간 자동 불러오기를 이미 시도한 장소
+ 
+ export function renderDrawer() {
+   const el = $("#drawer"), O = UI.open;
+-  el.classList.toggle("on", !!O);
+-  $("#scrim").hidden = !O;
++  const A = UI.add;
++  el.classList.toggle("on", !!(O || A));
++  $("#scrim").hidden = !(O || A);
++  if (A) { renderAdd(el); return; }          // 장소 추가 패널
+   if (!O) { el.innerHTML = ""; return; }
+ 
+   const o = O.o, c = cur(), inWish = c.wish.includes(o), food = o.c == "식사";
+@@ -40,6 +46,8 @@ export function renderDrawer() {
+   </div>`;
+ 
+   if (o.id && G.Place) loadReviews(o);
++  // 영업시간이 비어 있으면 자동으로 불러오기 (한 번만 시도)
++  if (o.id && G.Place && !o.hrs && !tried.has(o)) { tried.add(o); autofill(new G.Place({ id: o.id }), o); }
+ }
+ 
+ // 구글 평점·리뷰 3개
+diff --git a/js/views/mapview.js b/js/views/mapview.js
+index acee084..4362e37 100644
+--- a/js/views/mapview.js
++++ b/js/views/mapview.js
+@@ -1,5 +1,5 @@
+ // 지도에 올릴 점·선 계산 + 지도 위 Day 칩 · 범례 + 간이 지도(키 없을 때)
+-import { S, UI, cur, dayRows, shown, nums } from "../state.js";
++import { S, UI, cur, dayRows, shown, nums, catOn } from "../state.js";
+ import { CATS } from "../constants.js";
+ import { $, esc, hasXY } from "../utils.js";
+ import { ic, cv } from "../icons.js";
+@@ -9,12 +9,12 @@ export function mapData() {
+   const c = cur(), pts = [], lines = [];
+   if (!c) return { pts, lines };
+   const days = UI.focus ? [UI.focus] : Array.from({ length: c.nd }, (_, i) => i + 1);
+-  const ok = o => hasXY(o) && (!UI.catF || o.c == UI.catF); // 내 장소 카테고리 필터
++  const ok = o => hasXY(o) && catOn(o.c); // 내 장소 카테고리 필터
+   days.forEach(d => {
+     const L = shown(dayRows(d)), nm = nums(L);
+     L.forEach((o, j) => { if (ok(o.r)) pts.push({ o: o.r, key: "r" + o.i, no: nm[j], cand: o.r.s == "후보" }); });
+     // 카테고리로 거르는 중엔 동선이 끊겨 보이니 숨김
+-    if (!UI.catF) lines.push(L.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => o.r));
++    if (!UI.catF.length) lines.push(L.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => o.r));
+   });
+   // 계획 모드에선 보관함 장소도 옅게 표시 (어디쯤인지 보면서 배치)
+   if (UI.mode == "plan") c.wish.forEach((w, i) => {
+@@ -28,18 +28,21 @@ export function pinHTML(p, extra = "") {
+   return `<div class="pin${p.cand ? " cand" : ""}${p.wish ? " wish" : ""}${sel ? " sel" : ""}" style="${cv(p.o.c)}${extra}" title="${esc(p.o.p)}" data-a="pin" data-k="${p.key}">${ic(p.o.c, 16)}${p.no != null ? `<i>${p.no}</i>` : ""}</div>`;
+ }
+ 
+-// 지도 위 Day 칩 + 내 장소 카테고리 필터 + 아래 범례
++// 지도 위: [필터] 버튼(종류를 골라 걸러 보기) + Day 칩, 아래: 범례
+ export function renderMapHead(pts) {
+   const c = cur(), dash = UI.mode == "dash";
+-  const head = $(dash ? "#dmh" : "#pmh"), lg = $(dash ? "#dlg" : "#plg");
+-  head.innerHTML = c ? [0, ...Array.from({ length: c.nd }, (_, i) => i + 1)].map(d =>
+-    `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("")
+-    + `<span class="msep" aria-hidden="true"></span>`
+-    + ["", ...CATS].map(x => `<button class="cf${UI.catF == x ? " on" : ""}" data-a="cat" data-c="${x}" ${x ? `style="${cv(x)}" title="내 장소 중 ${x}만"` : `title="내 장소 모두"`}>${x ? ic(x, 13) + x : "모든 종류"}</button>`).join("")
++  const head = $(dash ? "#dmh" : "#pmh"), pop = $(dash ? "#dmf" : "#pmf"), lg = $(dash ? "#dlg" : "#plg");
++  $(dash ? "#pmf" : "#dmf").hidden = true;
++  const n = UI.catF.length, open = !!c && UI.menu == "mapf";
++  head.innerHTML = c ? (dash ? `<button class="cf fbtn" data-a="fold" data-f="map">🗺 ${UI.fold.map ? "펼치기 ▾" : "접기 ▴"}</button>` : `<button class="cf mclose" data-a="mapt">✕ 지도 닫기</button>`) + `<button class="cf flt${n ? " on" : ""}" data-a="menu" data-m="mapf" aria-haspopup="true" aria-expanded="${open}">⚙ 필터${n ? ` <i>${n}</i>` : ""}</button><span class="msep" aria-hidden="true"></span>`
++    + [0, ...Array.from({ length: c.nd }, (_, i) => i + 1)].map(d =>
++      `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("")
+     : "";
+-  const used = new Set(pts.map(p => p.o.c));
+-  lg.innerHTML = CATS.filter(x => used.has(x)).map(x => `<span style="${cv(x)}">${ic(x, 13)}${x}</span>`).join("")
+-    + (pts.some(p => p.wish) ? `<span>◌ 보관함</span>` : "")
++  pop.hidden = !open;
++  pop.innerHTML = open ? `<div class="mt">종류 <button class="fr" data-a="cat" data-c="">초기화</button></div>
++    <div class="cfs">${CATS.map(x => `<button class="cf${UI.catF.includes(x) ? " on" : ""}" data-a="cat" data-c="${x}" style="${cv(x)}">${ic(x, 13)}${x}</button>`).join("")}</div>
++    <p class="mu">고른 종류만 지도와 보관함에 보여요. 아무것도 안 고르면 전부 보여요.</p>` : "";
++  lg.innerHTML = (pts.some(p => p.wish) ? `<span>◌ 보관함</span>` : "")
+     + (UI.found ? `<span>▢ 주변 검색 결과</span>` : "");
+ }
+ 
+diff --git a/js/views/prep.js b/js/views/prep.js
+index db5e7c6..96496e4 100644
+--- a/js/views/prep.js
++++ b/js/views/prep.js
+@@ -1,30 +1,63 @@
+ // 준비 탭: 예약 정보 · 서류 · 준비물 · 교통/결제 · 환율 계산기
+-import { cur } from "../state.js";
++//   모든 항목은 '확정된 모습'으로 보여 주고, 눌러야 수정 모드가 됩니다. (UI.pe = 수정 중인 항목 키)
++import { UI, cur } from "../state.js";
+ import { $, esc, won } from "../utils.js";
+ 
+ const BK_TYPES = ["항공", "숙소", "교통", "액티비티"];
+ const X = (l, i) => `<button class="xb" data-a="del" data-l="${l}" data-i="${i}" aria-label="삭제" title="삭제">✕</button>`;
++const OK = `<button class="btn okb" data-a="pdone">완료</button>`;
++const fmtD = d => d ? d.slice(5).replace("-", "/") : "";
+ 
+-// 체크리스트 (docs / chk)
++// 체크리스트 (docs / chk): 체크박스는 항상 누를 수 있고, 글자를 누르면 수정
+ function list(l) {
+   const p = cur().prep[l];
+-  return p.map((x, i) => `<div class="row"><input type="checkbox" data-l="${l}" data-i="${i}" data-k="x" ${x.x ? "checked" : ""} aria-label="완료"><input data-l="${l}" data-i="${i}" data-k="t" value="${esc(x.t)}">${X(l, i)}</div>`).join("")
++  return p.map((x, i) => {
++    const k = l + i;
++    const chk = `<input type="checkbox" data-l="${l}" data-i="${i}" data-k="x" ${x.x ? "checked" : ""} aria-label="완료">`;
++    if (UI.pe === k) return `<div class="row item editing">${chk}<input data-pe="1" data-l="${l}" data-i="${i}" data-k="t" value="${esc(x.t)}">${OK}${X(l, i)}</div>`;
++    return `<div class="row item">${chk}<span class="txt${x.x ? " done" : ""}" data-a="pedit" data-pk="${k}" title="눌러서 수정">${esc(x.t) || "(비어 있음)"}</span>${X(l, i)}</div>`;
++  }).join("")
+     + `<input data-add="${l}" placeholder="추가할 항목 입력 후 Enter">`;
+ }
+ 
+ function bookingCard(p) {
+-  return `<div class="card"><h3>🎫 예약 정보</h3>${p.bk.map((b, i) => `<div class="bkr"><div class="row"><select data-l="bk" data-i="${i}" data-k="t" style="width:auto">${BK_TYPES.map(x => `<option ${x == b.t ? "selected" : ""}>${x}</option>`).join("")}</select><input data-l="bk" data-i="${i}" data-k="n" placeholder="이름·구간" value="${esc(b.n)}" style="flex:1;min-width:0">${X("bk", i)}</div><div class="row"><input data-l="bk" data-i="${i}" data-k="d" type="date" value="${esc(b.d)}" style="flex:1"><input data-l="bk" data-i="${i}" data-k="no" placeholder="예약번호" value="${esc(b.no)}" style="flex:1;min-width:0"></div></div>`).join("")}<button class="btn add" data-a="add" data-l="bk">+ 예약 추가</button></div>`;
++  const items = p.bk.map((b, i) => {
++    const k = "bk" + i;
++    if (UI.pe === k) {
++      return `<div class="bk editing"><div class="row"><select data-pe="1" data-l="bk" data-i="${i}" data-k="t" style="width:auto">${BK_TYPES.map(x => `<option ${x == b.t ? "selected" : ""}>${x}</option>`).join("")}</select><input data-pe="1" data-l="bk" data-i="${i}" data-k="n" placeholder="이름·구간" value="${esc(b.n)}" style="flex:1;min-width:0"></div>`
++        + `<div class="row"><input data-pe="1" data-l="bk" data-i="${i}" data-k="d" type="date" value="${esc(b.d)}" style="flex:1"><input data-pe="1" data-l="bk" data-i="${i}" data-k="no" placeholder="예약번호" value="${esc(b.no)}" style="flex:1;min-width:0"></div>${OK}${X("bk", i)}</div>`;
++    }
++    const sub = [fmtD(b.d), b.no].filter(Boolean).map(esc).join(" · ");
++    return `<div class="bk" data-a="pedit" data-pk="${k}" title="눌러서 수정"><span class="bkt">${esc(b.t)}</span><b>${esc(b.n) || "(이름 없음)"}</b><small>${sub || "&nbsp;"}</small>${X("bk", i)}</div>`;
++  }).join("");
++  return `<div class="card"><h3>🎫 예약 정보</h3><div class="bks">${items}</div><button class="btn add" data-a="add" data-l="bk">+ 예약 추가</button></div>`;
+ }
+ 
++const TR = [
++  ["card", "교통카드", "s", ["필요", "불필요", "선택"]],
++  ["buy", "카드 이름·구매·충전", "i", "예: Suica, 편의점 충전"],
++  ["pay", "트래블월렛·카드", "s", ["대부분 가능", "일부만 가능", "불가"]],
++  ["cash", "현금", "s", ["많이 필요", "조금 필요", "거의 불필요"]],
++  ["note", "교통 메모", "i", "예: 공항 급행, 패스"],
++];
++
+ function transportCard(c) {
+   const T = c.tr;
+-  const ts = (k, l, o) => `<div class="row"><span style="width:120px">${l}</span><select data-tr="1" data-k="${k}"><option value="">-</option>${o.map(x => `<option ${x == T[k] ? "selected" : ""}>${x}</option>`).join("")}</select></div>`;
+-  const ti = (k, l, ph) => `<div class="row"><span style="width:120px">${l}</span><input data-tr="1" data-k="${k}" value="${esc(T[k])}" placeholder="${ph}"></div>`;
+-  return `<div class="card"><h3>🚇 교통·결제</h3>${ts("card", "교통카드", ["필요", "불필요", "선택"])}${ti("buy", "카드 이름·구매·충전", "예: Suica, 편의점 충전")}${ts("pay", "트래블월렛·카드", ["대부분 가능", "일부만 가능", "불가"])}${ts("cash", "현금", ["많이 필요", "조금 필요", "거의 불필요"])}${ti("note", "교통 메모", "예: 공항 급행, 패스")}</div>`;
++  if (UI.pe === "tr") {
++    const rows = TR.map(([k, l, t, o]) => `<div class="row"><span style="width:120px">${l}</span>${t == "s"
++      ? `<select data-pe="1" data-tr="1" data-k="${k}"><option value="">-</option>${o.map(x => `<option ${x == T[k] ? "selected" : ""}>${x}</option>`).join("")}</select>`
++      : `<input data-pe="1" data-tr="1" data-k="${k}" value="${esc(T[k])}" placeholder="${o}">`}</div>`).join("");
++    return `<div class="card"><h3>🚇 교통·결제</h3>${rows}${OK}</div>`;
++  }
++  const rows = TR.map(([k, l]) => `<div class="kv"><span>${l}</span><span>${esc(T[k]) || "-"}</span></div>`).join("");
++  return `<div class="card view" data-a="pedit" data-pk="tr" title="눌러서 수정"><h3>🚇 교통·결제</h3>${rows}</div>`;
+ }
+ 
+ function fxCard(c) {
+-  return `<div class="card fx"><h3>💱 환율 계산기</h3><div class="row">1 ${esc(c.cur)} = <input data-top="1" data-k="rate" type="number" value="${c.rate}" style="width:90px"> 원</div><div class="row"><input id="fa" type="number" placeholder="금액" style="width:110px"> ${esc(c.cur)} = <b id="fo">0</b> 원</div><p class="mu">환율은 직접 입력해요. 예산 탭의 원화 환산에도 쓰여요.</p></div>`;
++  const rate = UI.pe === "fx"
++    ? `<input data-pe="1" data-top="1" data-k="rate" type="number" value="${c.rate}" style="width:90px"> 원 ${OK}`
++    : `<span class="txt" data-a="pedit" data-pk="fx" title="눌러서 수정"><b>${c.rate}</b> 원</span>`;
++  return `<div class="card fx"><h3>💱 환율 계산기</h3><div class="row">1 ${esc(c.cur)} = ${rate}</div><div class="row"><input id="fa" type="number" placeholder="금액" style="width:110px"> ${esc(c.cur)} = <b id="fo">0</b> 원</div><p class="mu">환율은 직접 입력해요. 예산 탭의 원화 환산에도 쓰여요.</p></div>`;
+ }
+ 
+ // 환율 계산기 입력값 → 원화 (events/inputs.js에서 호출)

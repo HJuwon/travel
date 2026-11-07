@@ -3,7 +3,8 @@
 export const G = {
   map: null,     // google.maps.Map
   iw: null,      // InfoWindow (지도 위 관광지 아이콘 클릭용)
-  Place: null,   // places.Place 클래스
+  Place: null,
+  PAC: null,     // places.PlaceAutocompleteElement 클래스   // places.Place 클래스
   AME: null,     // AdvancedMarkerElement
   Route: null,   // routes.Route (이동시간)
   mk: {},        // 현재 마커들 (키 → 마커)

@@ -1,5 +1,5 @@
 // 지도에 올릴 점·선 계산 + 지도 위 Day 칩 · 범례 + 간이 지도(키 없을 때)
-import { S, UI, cur, dayRows, shown, nums } from "../state.js";
+import { S, UI, cur, dayRows, shown, nums, catOn } from "../state.js";
 import { CATS } from "../constants.js";
 import { $, esc, hasXY } from "../utils.js";
 import { ic, cv } from "../icons.js";
@@ -9,12 +9,12 @@ export function mapData() {
   const c = cur(), pts = [], lines = [];
   if (!c) return { pts, lines };
   const days = UI.focus ? [UI.focus] : Array.from({ length: c.nd }, (_, i) => i + 1);
-  const ok = o => hasXY(o) && (!UI.catF || o.c == UI.catF); // 내 장소 카테고리 필터
+  const ok = o => hasXY(o) && catOn(o.c); // 내 장소 카테고리 필터
   days.forEach(d => {
     const L = shown(dayRows(d)), nm = nums(L);
     L.forEach((o, j) => { if (ok(o.r)) pts.push({ o: o.r, key: "r" + o.i, no: nm[j], cand: o.r.s == "후보" }); });
     // 카테고리로 거르는 중엔 동선이 끊겨 보이니 숨김
-    if (!UI.catF) lines.push(L.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => o.r));
+    if (!UI.catF.length) lines.push(L.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => o.r));
   });
   // 계획 모드에선 보관함 장소도 옅게 표시 (어디쯤인지 보면서 배치)
   if (UI.mode == "plan") c.wish.forEach((w, i) => {
@@ -28,18 +28,21 @@ export function pinHTML(p, extra = "") {
   return `<div class="pin${p.cand ? " cand" : ""}${p.wish ? " wish" : ""}${sel ? " sel" : ""}" style="${cv(p.o.c)}${extra}" title="${esc(p.o.p)}" data-a="pin" data-k="${p.key}">${ic(p.o.c, 16)}${p.no != null ? `<i>${p.no}</i>` : ""}</div>`;
 }
 
-// 지도 위 Day 칩 + 내 장소 카테고리 필터 + 아래 범례
+// 지도 위: [필터] 버튼(종류를 골라 걸러 보기) + Day 칩, 아래: 범례
 export function renderMapHead(pts) {
   const c = cur(), dash = UI.mode == "dash";
-  const head = $(dash ? "#dmh" : "#pmh"), lg = $(dash ? "#dlg" : "#plg");
-  head.innerHTML = c ? [0, ...Array.from({ length: c.nd }, (_, i) => i + 1)].map(d =>
-    `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("")
-    + `<span class="msep" aria-hidden="true"></span>`
-    + ["", ...CATS].map(x => `<button class="cf${UI.catF == x ? " on" : ""}" data-a="cat" data-c="${x}" ${x ? `style="${cv(x)}" title="내 장소 중 ${x}만"` : `title="내 장소 모두"`}>${x ? ic(x, 13) + x : "모든 종류"}</button>`).join("")
+  const head = $(dash ? "#dmh" : "#pmh"), pop = $(dash ? "#dmf" : "#pmf"), lg = $(dash ? "#dlg" : "#plg");
+  $(dash ? "#pmf" : "#dmf").hidden = true;
+  const n = UI.catF.length, open = !!c && UI.menu == "mapf";
+  head.innerHTML = c ? (dash ? `<button class="cf fbtn" data-a="fold" data-f="map">🗺 ${UI.fold.map ? "펼치기 ▾" : "접기 ▴"}</button>` : `<button class="cf mclose" data-a="mapt">✕ 지도 닫기</button>`) + `<button class="cf flt${n ? " on" : ""}" data-a="menu" data-m="mapf" aria-haspopup="true" aria-expanded="${open}">⚙ 필터${n ? ` <i>${n}</i>` : ""}</button><span class="msep" aria-hidden="true"></span>`
+    + [0, ...Array.from({ length: c.nd }, (_, i) => i + 1)].map(d =>
+      `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("")
     : "";
-  const used = new Set(pts.map(p => p.o.c));
-  lg.innerHTML = CATS.filter(x => used.has(x)).map(x => `<span style="${cv(x)}">${ic(x, 13)}${x}</span>`).join("")
-    + (pts.some(p => p.wish) ? `<span>◌ 보관함</span>` : "")
+  pop.hidden = !open;
+  pop.innerHTML = open ? `<div class="mt">종류 <button class="fr" data-a="cat" data-c="">초기화</button></div>
+    <div class="cfs">${CATS.map(x => `<button class="cf${UI.catF.includes(x) ? " on" : ""}" data-a="cat" data-c="${x}" style="${cv(x)}">${ic(x, 13)}${x}</button>`).join("")}</div>
+    <p class="mu">고른 종류만 지도와 보관함에 보여요. 아무것도 안 고르면 전부 보여요.</p>` : "";
+  lg.innerHTML = (pts.some(p => p.wish) ? `<span>◌ 보관함</span>` : "")
     + (UI.found ? `<span>▢ 주변 검색 결과</span>` : "");
 }
 

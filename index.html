@@ -37,26 +37,27 @@
   </section>
   <section class="mapwrap">
     <div class="maph" id="pmh"></div>
+    <div class="mn mfp" id="pmf" hidden></div>
     <div class="mapslot" id="pslot"><div id="map"></div></div>
     <div class="legend" id="plg"></div>
   </section>
 </main>
 
-<!-- 일정 · 대시보드 모드: Day별 일정 | 지도 + 후보 -->
+<!-- 일정 · 대시보드 모드: 지도 | Day별 일정 | 후보군  (휴대폰은 위에서 아래로 같은 순서) -->
 <main class="dash" id="dash" hidden>
+  <section class="mapwrap dmap">
+    <div class="maph" id="dmh"></div>
+    <div class="mn mfp" id="dmf" hidden></div>
+    <div class="mapslot" id="dslot"></div>
+    <div class="legend" id="dlg"></div>
+  </section>
+  <div class="sec secf" data-a="fold" data-f="days">일정 <span class="chev">▾</span></div>
   <div class="days" id="ddays"></div>
-  <aside class="dside">
-    <section class="mapwrap">
-      <div class="maph" id="dmh"></div>
-      <div class="mapslot" id="dslot"></div>
-      <div class="legend" id="dlg"></div>
-    </section>
-    <section class="cands">
-      <div class="sec">후보 <span id="ccount"></span></div>
-      <p class="chint">시간이 남거나 계획이 바뀌면 여기서 골라요</p>
-      <ul class="tl" id="cands"></ul>
-    </section>
-  </aside>
+  <section class="cands">
+    <div class="sec" data-a="fold" data-f="cands">후보 <span><span id="ccount"></span><span class="chev"> ▾</span></span></div>
+    <p class="chint">시간이 남거나 계획이 바뀌면 여기서 골라요</p>
+    <ul class="tl" id="cands"></ul>
+  </section>
 </main>
 
 <!-- 준비 / 예산 / 날씨 탭 -->

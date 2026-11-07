@@ -50,7 +50,10 @@ export const UI = {
   focus: 1,       // 지도에 보여줄 Day (0 = 전체)
   open: null,     // 상세 패널에 열린 장소 { o: 장소 객체 }
   sel: null,      // 대시보드에서 강조한 장소 키 ("r3")
-  catF: "",       // 내 장소 카테고리 필터 (보관함 목록 + 지도)
+  catF: [],       // 내 장소 카테고리 필터 — 여러 개 선택 (보관함 목록 + 지도). 비어 있으면 전부
+  fold: {},       // 휴대폰 대시보드에서 접은 구역 { map, days, cands }
+  pe: null,       // 준비 탭에서 수정 중인 항목 키 ("bk0" | "docs2" | "tr" | "fx" …)
+  add: null,      // 장소 추가 패널 { d: 0=보관함|Day, pv: 고른 장소 미리보기, busy }
   found: 0,       // 지도에 떠 있는 주변 검색 결과 수
   menu: null,     // 열린 메뉴 ("country" | "day2" …)
   mapOn: false,   // 태블릿·폰에서 지도 패널 열림
@@ -73,6 +76,9 @@ export const byKey = k => {
 
 // 한 Day의 장소들 (원래 인덱스 i 유지)
 export const dayRows = d => cur().rows.map((r, i) => ({ r, i })).filter(o => o.r.d == d);
+
+// 카테고리 필터에 걸리는지 (필터가 비어 있으면 전부 통과)
+export const catOn = c => !UI.catF.length || UI.catF.includes(c);
 
 // 후보 숨기기 적용
 export const shown = list => list.filter(o => !(S.hc && o.r.s == "후보"));
