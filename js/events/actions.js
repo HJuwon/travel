@@ -50,7 +50,7 @@ function onClick(e) {
       S.cs.push({ n: "새 나라", f: "🏳️", cur: "$", rate: 0, nd: 3, tr: {}, rows: [], wish: [], prep: newPrep() });
       S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { mode: "plan", open: null, focus: 0, menu: "country" });
       break;
-    case "sample": S.cs.push(SEED().cs[0]); S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { open: null, focus: 0, menu: null }); render(); refit(); return;
+    case "sample": S.cs.push(SEED().cs.find(x => x.n == b.dataset.n) || SEED().cs[0]); S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { open: null, focus: 0, menu: null }); render(); refit(); return;
     case "logout": if (confirm("이 기기에서 나갈까요? 다시 들어오려면 비밀번호가 필요해요.")) logout(); return;
     case "delc":
       if (!confirm(c.n + " 계획을 통째로 삭제할까요?")) return;

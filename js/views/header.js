@@ -3,6 +3,9 @@ import { S, UI, cur } from "../state.js";
 import { $, esc } from "../utils.js";
 import { online } from "../sync.js";
 import { CURS } from "../fx.js";
+import { SEED } from "../seed.js";
+
+const EX = SEED().cs.map(x => [x.n, x.f]); // 예시로 불러올 수 있는 나라
 
 const TABS = [["plan", "일정"], ["prep", "준비"], ["bud", "예산"], ["wx", "날씨"]];
 
@@ -10,7 +13,7 @@ function countryMenu(c) {
   let h = `<div class="mn"><div class="mt">나라</div>`;
   h += S.cs.map((x, i) => `<button class="${i == S.sel ? "on" : ""}" data-a="sel" data-i="${i}">${esc(x.f)} ${esc(x.n)}<small>${x.rows.length}곳</small></button>`).join("");
   h += `<button data-a="addc">+ 새 나라</button>`;
-  if (!S.cs.some(x => x.n == "일본")) h += `<button data-a="sample">+ 예시 불러오기 (일본)</button>`;
+  EX.filter(([n]) => !S.cs.some(x => x.n == n)).forEach(([n, f]) => { h += `<button data-a="sample" data-n="${n}">+ 예시 불러오기 (${f} ${n})</button>`; });
   if (c) {
     h += `<div class="msep"></div><div class="mt">${esc(c.n)} 설정</div>
     <div class="mform">

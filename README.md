@@ -107,7 +107,7 @@ js/
   constants.js          카테고리, 이동수단, 기본 체크리스트
   fx.js                 통화 목록, 자동 환율 불러오기
   icons.js              카테고리 아이콘·색, 구글 장소 종류 → 카테고리
-  seed.js               예시 데이터 (일본 4일)
+  seed.js               예시 데이터 (일본 4일 · 이탈리아 10일)
   state.js              저장 데이터 S, 화면 상태 UI, localStorage, 이전 데이터 변환
   utils.js              $, esc, won, 날짜·거리 계산 등
   colors.js             colors.css 값을 JS(구글 지도 동선)에서 읽는 도우미
