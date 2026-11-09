@@ -21,7 +21,7 @@ export async function init() {
   const el = $("#map");
   el.classList.remove("mini");
   el.innerHTML = "";
-  G.map = new Map(el, { center: { lat: 30, lng: 20 }, zoom: 2, mapId: "DEMO_MAP_ID", streetViewControl: false, mapTypeControl: false, fullscreenControl: false });
+  G.map = new Map(el, { center: { lat: 30, lng: 20 }, zoom: 2, mapId: "DEMO_MAP_ID", streetViewControl: false, mapTypeControl: false, fullscreenControl: false, gestureHandling: "greedy" }); // greedy: 휴대폰에서도 한 손가락으로 지도 이동
   G.iw = new InfoWindow();
   setupExplore(el); // 지도 위 "주변 찾기"
 
