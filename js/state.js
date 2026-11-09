@@ -51,6 +51,7 @@ export const UI = {
   mode: "plan",   // 일정 탭 안: "plan"(계획) | "dash"(대시보드)
   focus: 1,       // 지도에 보여줄 Day (0 = 전체)
   open: null,     // 상세 패널에 열린 장소 { o: 장소 객체 }
+  dm: null,       // 대시보드에서 펼친 일정 줄 ("r3")
   sel: null,      // 대시보드에서 강조한 장소 키 ("r3")
   catF: [],       // 내 장소 카테고리 필터 — 여러 개 선택 (보관함 목록 + 지도). 비어 있으면 전부
   fold: {},       // 휴대폰 대시보드에서 접은 구역 { map, days, cands }
@@ -60,6 +61,7 @@ export const UI = {
   pd: null,       // 준비 탭에서 삭제할 항목을 고르는 중인 카드
   pdSel: [],      //   고른 항목 번호들
   add: null,      // 장소 추가 패널 { d: 0=보관함|Day, pv: 고른 장소 미리보기, busy }
+  xo: false,      // 지도 위 "주변 찾기" 펼침
   found: 0,       // 지도에 떠 있는 주변 검색 결과 수
   menu: null,     // 열린 메뉴 ("country" | "day2" …)
   mapOn: false,   // 태블릿·폰에서 지도 패널 열림

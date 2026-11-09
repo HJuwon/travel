@@ -46,11 +46,11 @@ export async function legs() {
       const mode = a.tm || S.mode; // 구간별 이동수단
       const id = "#lg" + v[j].i + " .lt", A = { lat: a.la, lng: a.lo }, B = { lat: b.la, lng: b.lo };
       const k = [a.la, a.lo, b.la, b.lo, mode].join();
-      if ($(id)) $(id).textContent = "↓ 직선 " + hav(A, B).toFixed(1) + "km";
+      if ($(id)) $(id).textContent = "직선 " + hav(A, B).toFixed(1) + "km";
       if (!G.Route) continue;
 
       const r = await route(k, A, B, mode);
-      if (r && $(id)) $(id).textContent = "↓ " + fmtT(r[0]) + " · " + (r[1] / 1000).toFixed(1) + "km";
+      if (r && $(id)) $(id).textContent = fmtT(r[0]) + " · " + (r[1] / 1000).toFixed(1) + "km";
     }
   }
 }

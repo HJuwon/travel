@@ -8,7 +8,7 @@ import { render } from "../render.js";
 import { G } from "../google/gm.js";
 import { fit, pick } from "../google/map.js";
 import { loadHours } from "../google/places.js";
-import { clearFound } from "../google/explore.js";
+import { clearFound, toggleExplore } from "../google/explore.js";
 import { logout } from "../sync.js";
 import { startEdit, addRow, finishEdit, cancelEdit, startDelete, toggleSel, doDelete } from "../views/prep.js";
 
@@ -70,7 +70,11 @@ function onClick(e) {
     case "hc": S.hc = !S.hc; break;
     case "fold": UI.fold[b.dataset.f] = !UI.fold[b.dataset.f]; render(); refit(); return;
     case "mapt": UI.mapOn = !UI.mapOn; render(); refit(); return;
+    case "xopen": toggleExplore(); render(); return;
+    case "xmap": UI.add = null; UI.mapOn = true; toggleExplore(true); render(); refit(); return; // 장소 추가 패널 → 지도에서 찾기
     case "pin": pick(b.dataset.k); return;
+    case "dm": UI.dm = UI.dm == b.dataset.k ? null : b.dataset.k; break;               // 대시보드 일정 줄 펼치기
+    case "dopen": { const o = byKey(b.dataset.k); if (o) { UI.add = null; UI.open = { o }; } break; } // 상세 패널
 
     // ----- 장소 -----
     case "open": pick(b.dataset.k); return;

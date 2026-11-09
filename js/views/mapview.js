@@ -3,6 +3,7 @@ import { S, UI, cur, dayRows, shown, nums, catOn } from "../state.js";
 import { CATS } from "../constants.js";
 import { $, esc, hasXY } from "../utils.js";
 import { ic, cv } from "../icons.js";
+import { G } from "../google/gm.js";
 
 // pts: [{ o, key, no, cand, wish }], lines: Day별 [장소…] (후보 제외)
 export function mapData() {
@@ -34,7 +35,8 @@ export function renderMapHead(pts) {
   const head = $(dash ? "#dmh" : "#pmh"), pop = $(dash ? "#dmf" : "#pmf"), lg = $(dash ? "#dlg" : "#plg");
   $(dash ? "#pmf" : "#dmf").hidden = true;
   const n = UI.catF.length, open = !!c && UI.menu == "mapf";
-  head.innerHTML = c ? (dash ? `<button class="cf fbtn" data-a="fold" data-f="map">🗺 ${UI.fold.map ? "펼치기 ▾" : "접기 ▴"}</button>` : `<button class="cf mclose" data-a="mapt">✕ 지도 닫기</button>`) + `<button class="cf flt${n ? " on" : ""}" data-a="menu" data-m="mapf" aria-haspopup="true" aria-expanded="${open}">⚙ 필터${n ? ` <i>${n}</i>` : ""}</button><span class="msep" aria-hidden="true"></span>`
+  head.innerHTML = c ? (dash ? `<button class="cf fbtn" data-a="fold" data-f="map">🗺 ${UI.fold.map ? "펼치기 ▾" : "접기 ▴"}</button>` : `<button class="cf mclose" data-a="mapt">✕ 지도 닫기</button>`) + (G.map ? `<button class="cf xbtn${UI.xo ? " on" : ""}" data-a="xopen" aria-pressed="${!!UI.xo}">🔍 주변 찾기</button>` : "")
+    + `<button class="cf flt${n ? " on" : ""}" data-a="menu" data-m="mapf" aria-haspopup="true" aria-expanded="${open}">⚙ 필터${n ? ` <i>${n}</i>` : ""}</button><span class="msep" aria-hidden="true"></span>`
     + [0, ...Array.from({ length: c.nd }, (_, i) => i + 1)].map(d =>
       `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("")
     : "";

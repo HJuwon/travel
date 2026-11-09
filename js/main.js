@@ -24,9 +24,7 @@ if (online) {
 }
 
 if (!API_KEY || API_KEY === "YOUR_API_KEY") {
-  // 키가 없으면 검색 대신 안내, 지도는 간이 지도로
-  $("#sw").innerHTML = `<div class="search">🔍 장소 검색은 지도 키가 필요해요<small>js/keys.js의 API_KEY</small></div>`;
-  render();
+  render(); // 키가 없으면 지도는 간이 지도로 (장소 추가 패널에 검색 대신 안내)
 } else {
   render();
   window.gmInit = init; // 구글 스크립트가 로드되면 호출하는 콜백

@@ -24,12 +24,10 @@
 <!-- 일정 · 계획 모드: 보관함 | Day 칸 | 지도 -->
 <main class="planner" id="planner">
   <aside class="wish">
-    <div class="sw" id="sw"></div>
     <div class="sec">보관함 <span id="wcount"></span></div>
-    <div class="cats" id="wcats"></div>
+    <button class="addw" data-a="wmanual">+ 장소 추가</button>
     <div class="wlist" id="wishlist"></div>
-    <button class="addw" data-a="wmanual">+ 직접 추가</button>
-    <p class="hint">카드를 Day 칸으로 끌어다 놓으세요.<br>태블릿·폰에서는 길게 눌러서 잡아요.</p>
+    <p class="hint" id="whint" hidden>카드를 Day 칸으로 끌어다 놓으세요.<br>태블릿·폰에서는 길게 눌러서 잡아요.</p>
   </aside>
   <section class="main">
     <div class="bar" id="bar"></div>
@@ -55,7 +53,6 @@
   <div class="days" id="ddays"></div>
   <section class="cands">
     <div class="sec" data-a="fold" data-f="cands">후보 <span><span id="ccount"></span><span class="chev"> ▾</span></span></div>
-    <p class="chint">시간이 남거나 계획이 바뀌면 여기서 골라요</p>
     <ul class="tl" id="cands"></ul>
   </section>
 </main>

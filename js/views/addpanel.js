@@ -90,7 +90,8 @@ export function renderAdd(el) {
     </div>
     <button class="btn" data-a="addreset" style="align-self:flex-start">다른 장소 검색</button>`;
   } else {
-    body += `<div class="f">장소 검색<div id="addsearch" class="sw">${G.Place ? "" : `<div class="search">🔍 검색은 지도 키가 필요해요<small>js/keys.js의 API_KEY</small></div>`}</div></div>`;
+    body += `<div class="f">장소 검색<div id="addsearch" class="sw">${G.Place ? "" : `<div class="search">🔍 검색은 지도 키가 필요해요<small>js/keys.js의 API_KEY</small></div>`}</div></div>`
+      + (G.map ? `<button class="btn xmapb" data-a="xmap">🗺 지도에서 둘러보며 찾기 <small>음식점·카페·명소…</small></button>` : "");
   }
 
   el.innerHTML = `<div class="dhd"><span class="ci" style="--c:var(--accent)">＋</span><b class="atl">장소 추가</b><button class="x" data-a="close" aria-label="닫기">✕</button></div>

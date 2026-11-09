@@ -1,22 +1,20 @@
 // 계획 모드: 왼쪽 보관함 + 가운데 Day 칸 (끌어서 배치)
 import { S, UI, cur, dayRows, shown, nums, catOn } from "../state.js";
-import { CATS, MODES } from "../constants.js";
+import { MODES } from "../constants.js";
 import { $, esc, won, hasXY, dayLabel, dirURL } from "../utils.js";
-import { ic, cv } from "../icons.js";
 import { pcard } from "./card.js";
 import { sortable } from "../events/drag.js";
 
 export function renderWish() {
   const c = cur(), el = $("#wishlist");
-  if (!c) { el.innerHTML = $("#wcats").innerHTML = $("#wcount").textContent = ""; return; }
+  if (!c) { el.innerHTML = $("#wcount").textContent = ""; $("#whint").hidden = true; return; }
 
   $("#wcount").textContent = c.wish.length + "곳";
-  $("#wcats").innerHTML = ["", ...CATS].map(x =>
-    `<button class="cf${(x ? UI.catF.includes(x) : !UI.catF.length) ? " on" : ""}" data-a="cat" data-c="${x}" ${x ? `style="${cv(x)}"` : ""}>${x ? ic(x, 13) + x : "전체"}</button>`
-  ).join("");
+  // 끌어다 놓기 안내는 아직 일정이 비어 있을 때만
+  $("#whint").hidden = !c.wish.length || c.rows.length > 0;
 
   el.innerHTML = c.wish.map((w, i) => pcard(w, "w" + i, null, c.cur, !catOn(w.c))).join("")
-    + (c.wish.length ? "" : `<div class="empty">장소를 검색하거나 지도에서 골라<br>가고 싶은 곳을 모아 두세요</div>`);
+    + (c.wish.length ? "" : `<div class="empty">가고 싶은 곳을 모아 두고<br>Day 칸으로 끌어다 일정에 넣어요</div>`);
   sortable(el);
 }
 
@@ -49,10 +47,9 @@ function column(c, d) {
     // 다음 장소까지 이동 구간 (google/routes.js가 시간을 채움)
     const n = vis[j + 1];
     if (!hid && n && o.r.s != "후보" && n.r.s != "후보" && hasXY(o.r) && hasXY(n.r)) {
-      // 구간마다 이동수단을 따로 고름 (앞 장소 o.r.tm 에 저장)
-      const m = o.r.tm || S.mode;
-      const mb = Object.keys(MODES).map(k => `<button class="lm${k == m ? " on" : ""}" data-a="lmode" data-k="r${o.i}" data-m="${k}" title="${MODES[k].slice(2)}" aria-label="${MODES[k]}">${MODES[k].split(" ")[0]}</button>`).join("");
-      h += `<div class="leg" id="lg${o.i}"><span class="lt">↓</span><span class="lms">${mb}</span><a class="gdir" href="${dirURL(o.r, n.r, m)}" target="_blank" rel="noopener" title="구글맵에서 이 구간 길찾기">길찾기 ↗</a></div>`;
+      // 구간마다 이동수단 (앞 장소 o.r.tm 에 저장). 아이콘을 누르면 다음 수단으로 바뀜
+      const m = o.r.tm || S.mode, K = Object.keys(MODES), nx = K[(K.indexOf(m) + 1) % K.length];
+      h += `<div class="leg" id="lg${o.i}"><button class="lm" data-a="lmode" data-k="r${o.i}" data-m="${nx}" title="${MODES[m].slice(2)} · 눌러서 ${MODES[nx].slice(2)}로" aria-label="이동수단 ${MODES[m].slice(2)}, 눌러서 바꾸기">${MODES[m].split(" ")[0]}</button><span class="lt">…</span><a class="gdir" href="${dirURL(o.r, n.r, m)}" target="_blank" rel="noopener" title="구글맵에서 이 구간 길찾기">길찾기 ↗</a></div>`;
     }
   });
 

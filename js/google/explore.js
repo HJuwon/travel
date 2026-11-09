@@ -22,6 +22,7 @@ let bar, mk = [], last = null; // last = { kind } 또는 { q }
 export function setupExplore(el) {
   bar = document.createElement("div");
   bar.className = "explore";
+  bar.hidden = !UI.xo; // 지도 위 [🔍 주변 찾기]를 눌러야 펼쳐짐
   bar.innerHTML = `<form class="xq" role="search">
       <input type="search" placeholder="이 지역에서 찾기 (예: 라멘, 온천)" aria-label="이 지역에서 장소 찾기" enterkeyhint="search">
       <button aria-label="찾기">🔍</button>
@@ -64,6 +65,15 @@ function state() {
   clr.hidden = !mk.length;
   clr.textContent = "✕ " + mk.length + "곳 지우기";
   UI.found = mk.length;
+}
+
+// [🔍 주변 찾기] 펼치기/접기. 접으면 결과 핀도 지움
+export function toggleExplore(on = !UI.xo) {
+  UI.xo = on;
+  if (!bar) return;
+  bar.hidden = !on;
+  if (on) setTimeout(() => bar.querySelector("input").focus(), 50);
+  else clearFound();
 }
 
 export function clearFound() {
