@@ -52,7 +52,11 @@ export const UI = {
   sel: null,      // 대시보드에서 강조한 장소 키 ("r3")
   catF: [],       // 내 장소 카테고리 필터 — 여러 개 선택 (보관함 목록 + 지도). 비어 있으면 전부
   fold: {},       // 휴대폰 대시보드에서 접은 구역 { map, days, cands }
-  pe: null,       // 준비 탭에서 수정 중인 항목 키 ("bk0" | "docs2" | "tr" | "fx" …)
+  pe: null,       // 준비 탭에서 수정 중인 카드 ("bk" | "docs" | "chk" | "tr" | "fx")
+  draft: null,    //   수정 중인 사본 ([완료]를 눌러야 반영)
+  peFocus: null,  //   수정 모드에서 커서를 둘 줄 번호
+  pd: null,       // 준비 탭에서 삭제할 항목을 고르는 중인 카드
+  pdSel: [],      //   고른 항목 번호들
   add: null,      // 장소 추가 패널 { d: 0=보관함|Day, pv: 고른 장소 미리보기, busy }
   found: 0,       // 지도에 떠 있는 주변 검색 결과 수
   menu: null,     // 열린 메뉴 ("country" | "day2" …)

@@ -10,6 +10,7 @@ import { fit, pick } from "../google/map.js";
 import { loadHours } from "../google/places.js";
 import { clearFound } from "../google/explore.js";
 import { logout } from "../sync.js";
+import { startEdit, addRow, finishEdit, cancelEdit, startDelete, toggleSel, doDelete } from "../views/prep.js";
 
 // 지도 크기가 바뀌는 전환 뒤에 다시 맞추기
 const refit = () => setTimeout(() => { if (G.map) google.maps.event.trigger(G.map, "resize"); fit(); }, 60);
@@ -25,8 +26,12 @@ function deleteDay(c, n) {
   return true;
 }
 
+// 준비 탭 목록이 비어 있으면 카드를 눌렀을 때 바로 새 항목 칸을 열어 줌
+const source0 = (c, k) => c.prep[k] && c.prep[k].length;
+
 function onClick(e) {
   if (e.target.closest("a[href]")) return; // 길찾기 등 링크는 그대로 열기
+  if (e.target.matches("input,select,textarea")) return; // 입력칸·체크박스는 감싼 카드 동작을 일으키지 않음
   // 메뉴 바깥을 누르면 메뉴 닫기 (누른 버튼 동작은 계속 진행)
   if (UI.menu && !e.target.closest(".mn") && !e.target.closest("[data-a=menu]")) {
     UI.menu = null;
@@ -40,7 +45,7 @@ function onClick(e) {
   switch (a) {
     // ----- 상단 -----
     case "menu": UI.menu = UI.menu == b.dataset.m ? null : b.dataset.m; break;
-    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: [], pe: null, add: null }); clearFound(); render(); refit(); return;
+    case "sel": S.sel = +b.dataset.i; Object.assign(UI, { open: null, sel: null, focus: 0, menu: null, catF: [], add: null }); cancelEdit(); UI.pd = null; clearFound(); render(); refit(); return;
     case "addc":
       S.cs.push({ n: "새 나라", f: "🏳️", cur: "$", rate: 0, nd: 3, tr: {}, rows: [], wish: [], prep: newPrep() });
       S.sel = S.cs.length - 1; S.tab = "plan"; Object.assign(UI, { mode: "plan", open: null, focus: 0, menu: "country" });
@@ -51,7 +56,7 @@ function onClick(e) {
       if (!confirm(c.n + " 계획을 통째로 삭제할까요?")) return;
       S.cs.splice(S.sel, 1); S.sel = Math.max(0, S.sel - 1); Object.assign(UI, { open: null, focus: 0, menu: null });
       break;
-    case "tab": S.tab = b.dataset.t; UI.open = null; UI.add = null; UI.pe = null; window.scrollTo(0, 0); render(); refit(); return;
+    case "tab": S.tab = b.dataset.t; UI.open = null; UI.add = null; cancelEdit(); UI.pd = null; window.scrollTo(0, 0); render(); refit(); return;
     case "mode":
       UI.mode = b.dataset.m; UI.sel = null; UI.open = null; UI.mapOn = false;
       if (UI.mode == "dash") UI.focus = todayDay(c) || (isPhone() ? 1 : 0); // 여행 중이면 오늘 Day
@@ -93,10 +98,14 @@ function onClick(e) {
     }
 
     // ----- 준비 탭 -----
-    case "add": c.prep.bk.push({ t: "항공", n: "", d: "", no: "" }); UI.pe = "bk" + (c.prep.bk.length - 1); break;
-    case "del": UI.pe = null; c.prep[b.dataset.l].splice(+b.dataset.i, 1); break;
-    case "pedit": UI.pe = b.dataset.pk; render(); document.querySelector("#prep [data-pe]")?.focus(); return;
-    case "pdone": UI.pe = null; break;
+    // 카드 누르기 → 수정, [완료] → 반영, 휴지통 → 골라서 삭제 (views/prep.js)
+    case "pedit": startEdit(b.dataset.pk, !(b.dataset.pk == "tr" || b.dataset.pk == "fx" || source0(c, b.dataset.pk))); break;
+    case "padd": addRow(); break;
+    case "pdone": finishEdit(); break;
+    case "pcancel": cancelEdit(); break;
+    case "pdel": startDelete(b.dataset.pk); break;
+    case "psel": toggleSel(+b.dataset.i); break;
+    case "pdelgo": if (!UI.pdSel.length || !confirm(UI.pdSel.length + "개를 " + (UI.pd == "tr" ? "비울까요?" : "삭제할까요?"))) return; doDelete(); break;
 
     default: return;
   }
@@ -107,7 +116,7 @@ export function bindActions() {
   document.addEventListener("click", onClick);
   // Esc로 패널·메뉴 닫기
   document.addEventListener("keydown", e => {
-    if (e.key != "Escape" || !(UI.open || UI.menu || UI.add || UI.pe)) return;
-    UI.open = null; UI.menu = null; UI.add = null; UI.pe = null; render();
+    if (e.key != "Escape" || !(UI.open || UI.menu || UI.add || UI.pe || UI.pd)) return;
+    UI.open = null; UI.menu = null; UI.add = null; cancelEdit(); UI.pd = null; render();
   });
 }
