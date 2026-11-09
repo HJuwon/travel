@@ -262,11 +262,21 @@ a{color:var(--accent-strong)}
 .kv{display:flex;gap:8px;padding:3px 0;font-size:13px;align-items:center}.kv .kl{width:130px;flex:none;color:var(--muted)}
 .xb{flex:none;color:var(--muted);padding:4px 8px;font-size:15px;border-radius:8px}.xb:hover{color:var(--danger)}
 .add{margin-top:4px}
+#bud{display:grid;gap:12px;align-content:start}
+.fxr{font-size:15px;flex-wrap:wrap}.fxr .rt{font-size:20px}
+.fxcalc{display:flex;align-items:center;gap:8px;margin:6px 0 8px}
+.fxcalc label{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.fxcalc input{flex:1;min-width:0;font-size:16px}
+.fxcalc .eq{color:var(--muted)}
 .tot{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:12px}.tot small{font-size:14px;color:var(--muted);font-weight:400}
 .br{display:flex;align-items:center;gap:10px;margin:10px 0}.br span:first-child{width:56px;display:inline-flex;align-items:center;gap:4px}.br span:first-child svg{color:var(--c)}
 .br div.t{flex:1;background:var(--accent-soft);border-radius:6px}
 .br span:last-child{width:110px;text-align:right}.bfill{height:10px;border-radius:6px;background:var(--c,var(--accent))}
 .wd{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}.wr{display:flex;align-items:center;gap:8px}.wi{font-size:26px}
+.clim{padding:8px 0;border-bottom:1px solid var(--border)}.clim:last-of-type{border-bottom:0}
+.clim .ct{font-size:15px;margin:2px 0}.clim .ct b{font-size:20px}
+.clim .cw{font-size:13px}
+.wx small{display:block}
 .warn{background:var(--warn-bg);color:var(--warn-text);border-radius:10px;padding:8px 12px}
 
 /* ---------- 입장 비밀번호 · 저장 상태 ---------- */

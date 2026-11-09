@@ -3,6 +3,7 @@
 //   UI : 화면 상태 (저장 안 함 — 새로고침하면 초기화)
 import { SEED } from "./seed.js";
 import { newPrep } from "./constants.js";
+import { guessCode } from "./fx.js";
 
 const KEY = "trip";
 
@@ -29,6 +30,7 @@ function fix(c) {
   c.rows.forEach(r => { r.d = r.d || 1; if (r.s == "변경가능") r.s = "후보"; });
   c.tr = c.tr || {};
   c.prep = c.prep || newPrep();
+  if (c.code === undefined) c.code = guessCode(c);   // 자동 환율용 통화 코드 (JPY 등)
 }
 s.cs.forEach(fix);
 

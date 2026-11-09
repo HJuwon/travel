@@ -2,6 +2,7 @@
 import { S, UI, cur } from "../state.js";
 import { $, esc } from "../utils.js";
 import { online } from "../sync.js";
+import { CURS } from "../fx.js";
 
 const TABS = [["plan", "일정"], ["prep", "준비"], ["bud", "예산"], ["wx", "날씨"]];
 
@@ -15,7 +16,7 @@ function countryMenu(c) {
     <div class="mform">
       <label>국기<input data-top="1" data-k="f" value="${esc(c.f)}"></label>
       <label>이름<input data-top="1" data-k="n" value="${esc(c.n)}"></label>
-      <label>통화<input data-top="1" data-k="cur" value="${esc(c.cur)}"></label>
+      <label>통화<select data-top="1" data-k="code"><option value="" ${c.code ? "" : "selected"}>직접 (${esc(c.cur)})</option>${CURS.map(([k, s, n]) => `<option value="${k}" ${k == c.code ? "selected" : ""}>${n}</option>`).join("")}</select></label>
       <label class="full">여행 시작일<input type="date" data-top="1" data-k="start" value="${esc(c.start)}"></label>
     </div>
     <button class="dg" data-a="delc">이 나라 삭제</button>`;

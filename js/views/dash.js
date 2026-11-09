@@ -37,7 +37,10 @@ function fillWeather(c) {
   for (let d = 1; d <= c.nd; d++) {
     dayForecast(c, d, all).then(o => {
       const el = document.querySelector(`[data-wxd="${d}"]`);
-      if (el && !o.msg) el.innerHTML = `<span>${o.ic}</span>${o.hi}° / ${o.lo}° · ☔${o.rain}%`;
+      if (!el || o.msg) return;
+      el.innerHTML = o.nm
+        ? `<small class="mu">평년</small>${o.hi}° / ${o.lo}°`            // 아직 예보 범위 밖 → 그 달 평균
+        : `<span>${o.ic}</span>${o.hi}° / ${o.lo}° · ☔${o.rain}%`;
     });
   }
 }

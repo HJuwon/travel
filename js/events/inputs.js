@@ -3,7 +3,9 @@ import { UI, cur, moveTo } from "../state.js";
 import { commitAdd } from "../views/addpanel.js";
 import { render, renderMain } from "../render.js";
 import { renderDrawer } from "../views/drawer.js";
-import { fx, draftInput, draftNewLine, finishEdit } from "../views/prep.js";
+import { draftInput, draftNewLine, finishEdit } from "../views/prep.js";
+import { fx } from "../views/budget.js";
+import { curOf } from "../fx.js";
 
 function onChange(e) {
   const t = e.target, c = cur();
@@ -29,7 +31,12 @@ function onChange(e) {
   const k = t.dataset.k;
   if (!k || !c) return;
   const v = t.type == "checkbox" ? (t.checked ? 1 : 0) : t.value;
-  if (t.dataset.top) c[k] = k == "rate" ? +v || 0 : v;            // 나라 정보 (이름·통화·환율·시작일)
+  if (t.dataset.top && k == "code") {                             // 통화 고르기 → 기호도 맞추고 자동 환율 다시
+    c.code = v; c.rateAt = 0;
+    const x = curOf(v);
+    if (x) c.cur = x[1];
+  }
+  else if (t.dataset.top) c[k] = k == "rate" ? +v || 0 : v;       // 나라 정보 (이름·통화 기호·환율·시작일)
   else if (t.dataset.tr) c.tr[k] = v;                            // 교통·결제
   else if (t.dataset.l) c.prep[t.dataset.l][+t.dataset.i][k] = v; // 준비 탭 목록
   render();
@@ -60,7 +67,7 @@ function onKeydown(e) {
 }
 
 function onInput(e) {
-  if (e.target.id == "fa") fx();
+  if (e.target.id == "fa" || e.target.id == "fk") fx(e.target.id);
   if (e.target.dataset.dr) draftInput(e.target);
 }
 

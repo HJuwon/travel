@@ -1,10 +1,10 @@
-// 준비 탭: 예약 정보 · 비자·여권·보험 · 준비물 · 교통/결제 · 환율 계산기
+// 준비 탭: 예약 정보 · 비자·여권·보험 · 준비물 · 교통/결제  (환율은 예산 탭)
 //   카드마다 평소엔 글로만 보여 주고,
 //   - 카드를 누르면 수정 모드 → [완료]를 눌러야 반영 ([취소]·Esc면 그대로)
 //   - 오른쪽 위 휴지통 → 지울 항목을 골라 [선택 삭제]
 //   UI.pe = 수정 중인 카드, UI.draft = 수정 중인 사본, UI.pd = 삭제 고르는 중인 카드, UI.pdSel = 고른 번호들
 import { UI, cur } from "../state.js";
-import { $, esc, won } from "../utils.js";
+import { $, esc } from "../utils.js";
 
 const BK_TYPES = ["항공", "숙소", "교통", "액티비티"];
 const TR = [
@@ -19,7 +19,7 @@ const TRASH = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 
 // ----- 수정 · 삭제 상태 처리 (events/actions.js에서 호출) -----
 const clone = v => JSON.parse(JSON.stringify(v));
-const source = (c, k) => k == "tr" ? c.tr : k == "fx" ? { rate: c.rate } : c.prep[k];
+const source = (c, k) => k == "tr" ? c.tr : c.prep[k];
 const blank = k => k == "bk" ? { t: "항공", n: "", d: "", no: "" } : { t: "", x: 0 };
 
 export function startEdit(k, addNew) {
@@ -35,7 +35,6 @@ export function finishEdit() {
   const c = cur(), k = UI.pe, d = UI.draft;
   if (!c || !k || !d) return;
   if (k == "tr") c.tr = d;
-  else if (k == "fx") c.rate = +d.rate || 0;
   else if (k == "bk") c.prep.bk = d.filter(b => b.n.trim() || b.d || b.no.trim());   // 빈 예약은 버림
   else c.prep[k] = d.filter(x => x.t.trim()).map(x => ({ ...x, t: x.t.trim() }));   // 빈 줄은 버림
   cancelEdit();
@@ -150,17 +149,7 @@ function transportCard(c) {
   return `<div ${cardAttr(k)}>${head(k, "🚇 교통·결제", TR.some(([f]) => c.tr[f]))}${body}${foot(k)}</div>`;
 }
 
-function fxCard(c) {
-  const rate = UI.pe == "fx"
-    ? `<input data-dr="1" data-k="rate" type="number" value="${UI.draft.rate}" style="width:90px"> 원`
-    : `<span class="txt" data-a="pedit" data-pk="fx" title="눌러서 수정"><b>${c.rate}</b> 원</span>`;
-  return `<div class="card fx">${head("fx", "💱 환율 계산기", false)}<div class="row">1 ${esc(c.cur)} = ${rate}</div>${foot("fx")}<div class="row"><input id="fa" type="number" placeholder="금액" style="width:110px"> ${esc(c.cur)} = <b id="fo">0</b> 원</div><p class="mu">환율은 직접 입력해요. 예산 탭의 원화 환산에도 쓰여요.</p></div>`;
-}
 
-// 환율 계산기 입력값 → 원화 (events/inputs.js에서 호출)
-export function fx() {
-  $("#fo").textContent = won((+$("#fa").value || 0) * (cur().rate || 0));
-}
 
 export function renderPrep() {
   const c = cur();
@@ -170,11 +159,11 @@ export function renderPrep() {
 ${bookingCard(p)}
 ${listCard("docs", "🛂 비자·여권·보험", "예: 여행자보험 가입")}
 ${listCard("chk", "🧳 준비물", "예: 보조배터리")}
-${transportCard(c)}${fxCard(c)}</div>`;
+${transportCard(c)}</div>`;
 
   // 수정 모드로 막 들어왔으면 해당 칸에 커서
   if (UI.pe && UI.peFocus != null) {
-    const sel = UI.pe == "tr" || UI.pe == "fx" ? "#prep [data-dr]" : `#prep [data-dr][data-i="${UI.peFocus}"]:not(select)`;
+    const sel = UI.pe == "tr" ? "#prep [data-dr]" : `#prep [data-dr][data-i="${UI.peFocus}"]:not(select)`;
     const el = document.querySelector(sel);
     UI.peFocus = null;
     if (el) { el.focus(); if (el.select && el.type != "date") el.select(); }

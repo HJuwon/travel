@@ -99,7 +99,7 @@ function onClick(e) {
 
     // ----- 준비 탭 -----
     // 카드 누르기 → 수정, [완료] → 반영, 휴지통 → 골라서 삭제 (views/prep.js)
-    case "pedit": startEdit(b.dataset.pk, !(b.dataset.pk == "tr" || b.dataset.pk == "fx" || source0(c, b.dataset.pk))); break;
+    case "pedit": startEdit(b.dataset.pk, !(b.dataset.pk == "tr" || source0(c, b.dataset.pk))); break;
     case "padd": addRow(); break;
     case "pdone": finishEdit(); break;
     case "pcancel": cancelEdit(); break;
