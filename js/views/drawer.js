@@ -1,4 +1,4 @@
-// 오른쪽 패널 (휴대폰은 화면 전체): 장소 상세 · 장소 추가 · 여행 설정
+// 오른쪽 패널 (휴대폰은 화면 전체): 장소 상세 · 장소 추가 · 여행 설정 · 구글 목록 불러오기
 import { S, UI, cur } from "../state.js";
 import { CATS, STS, MODES } from "../constants.js";
 import { $, esc, gq } from "../utils.js";
@@ -13,12 +13,13 @@ const tried = new WeakSet(); // 구글 정보 자동 불러오기를 이미 시�
 
 export function renderDrawer() {
   const el = $("#drawer"), O = UI.open, A = UI.add, c = cur();
-  if (!c) UI.set = false;
-  const on = !!(O || A || UI.set);
+  if (!c) UI.set = UI.imp = false;
+  const on = !!(O || A || UI.set || UI.imp);
   el.classList.toggle("on", on);
   $("#scrim").hidden = !on;
   if (A) { renderAdd(el); return; }               // 장소 추가
   if (UI.set) { renderSettings(el, c); return; }  // 여행 설정
+  if (UI.imp) { renderImport(el, c); return; }    // 구글 목록 불러오기
   if (!O) { el.innerHTML = ""; return; }
   renderPlace(el, O.o, c);
 }
@@ -41,6 +42,29 @@ function renderSettings(el, c) {
     <label class="f">기본 이동수단 <span class="mu">장소 사이 이동시간 계산. 구간마다 아이콘을 눌러 따로 바꿀 수 있어요</span><select data-set="mode">${Object.entries(MODES).map(([k, v]) => `<option value="${k}" ${S.mode == k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
   </div>
   <div class="dft"><button class="btn p" data-a="close">완료</button><button class="btn dg" data-a="delc">이 나라 삭제</button></div>`;
+}
+
+// ----- 구글 목록 불러오기: 링크 저장 · 수정 · 다시 불러오기(새 장소만) -----
+function renderImport(el, c) {
+  const when = ms => { const d = new Date(ms); return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+  const msg = i => UI.glMsg && UI.glMsg.i == i ? `<p class="glmsg${UI.glMsg.ok ? " ok" : ""}">${esc(UI.glMsg.t)}</p>` : "";
+  const busy = UI.glBusy != null;
+  el.innerHTML = `<div class="dhd"><span class="ci" style="--c:var(--accent)">🔗</span><b class="atl">구글 목록 불러오기</b><button class="x" data-a="close" aria-label="닫기">✕</button></div>
+  <div class="dbody">
+    <p class="mu" style="margin:0">구글 지도에서 목록 → <b>공유</b> → 링크 복사 후 붙여 넣으세요. 목록의 장소가 전부 보관함으로 들어와요.
+      다시 불러오면 <b>새로 추가된 장소만</b> 들어와요 (Day로 옮겼거나 지운 장소는 다시 안 들어와요).</p>
+    ${c.gl.map((e, i) => `<div class="glc">
+      <div class="glh"><b>${esc(e.title || "구글 목록")}</b><span class="mu">${e.at ? when(e.at) + " · " + e.n + "곳" : "아직 안 불러옴"}</span></div>
+      <input data-gl="url" data-i="${i}" value="${esc(e.url)}" aria-label="목록 링크 (고칠 수 있어요)">
+      <div class="pact"><button class="btn p" data-a="glgo" data-i="${i}" ${busy ? "disabled" : ""}>${UI.glBusy == i ? "불러오는 중…" : "↻ 새 장소 불러오기"}</button><button class="btn dg" data-a="gldel" data-i="${i}">링크 삭제</button></div>
+      ${msg(i)}
+    </div>`).join("")}
+    <label class="f">${c.gl.length ? "다른 목록 추가" : "목록 링크"}<input data-gl="new" placeholder="https://maps.app.goo.gl/…" inputmode="url" autocomplete="off"></label>
+    <div><button class="btn p" data-a="gladd" ${busy ? "disabled" : ""}>확인</button></div>
+    ${msg(-1)}
+    <p class="mu" style="margin:0">⚠ '링크가 있는 사람 누구나 보기'로 공유한 목록만 돼요. 비공개 목록은 안 돼요.<br>구글이 공개한 기능이 아니라서 구글이 바꾸면 안 될 수 있어요. 이때도 다른 기능은 그대로예요.<br>목록을 불러올 때는 구글 요금이 안 나가요.</p>
+  </div>
+  <div class="dft"><button class="btn" data-a="close">닫기</button></div>`;
 }
 
 // ----- 장소 상세: 모든 정보 편집 · 보관함↔Day 이동 · 삭제 -----

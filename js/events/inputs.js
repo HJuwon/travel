@@ -41,6 +41,9 @@ function onChange(e) {
     return;
   }
   if (t.dataset.ex) return; // 예산 탭 추가 지출 입력칸 ([+ 추가]를 눌러야 반영)
+  // 구글 목록 링크 수정 (새 링크 칸은 [확인]을 눌러야 반영)
+  if (t.dataset.gl == "url") { const e = c && c.gl[+t.dataset.i]; if (e && t.value.trim()) e.url = t.value.trim(); render(); return; }
+  if (t.dataset.gl) return;
 
   const k = t.dataset.k;
   if (!k || !c) return;
@@ -74,6 +77,8 @@ function onKeydown(e) {
     render();
     return;
   }
+  // 구글 목록 새 링크 칸에서 Enter → [확인]
+  if (e.key == "Enter" && t.dataset && t.dataset.gl == "new" && !e.isComposing) { e.preventDefault(); document.querySelector("[data-a=gladd]").click(); return; }
   // 예산 탭 추가 지출 칸에서 Enter → [+ 추가]
   if (e.key == "Enter" && t.dataset && t.dataset.ex && !e.isComposing) { e.preventDefault(); t.closest(".exadd").querySelector("[data-a=exadd]").click(); return; }
   // 장소 추가 패널 이름 칸 Enter → 추가

@@ -31,7 +31,8 @@ function fix(c) {
   c.rows.forEach(r => { r.d = r.d || 1; if (r.s == "변경가능") r.s = "후보"; });
   c.tr = c.tr || {};
   c.prep = c.prep || newPrep();
-  c.ex = c.ex || [];                                 // 예산: 일정에 없던 추가 지출 [{ c: 종류, t: 내용, w: 금액 }]
+  c.ex = c.ex || [];
+  c.gl = c.gl || [];                                 // 구글 지도 공유 목록 링크 [{ url, title, keys, at, n }]                                 // 예산: 일정에 없던 추가 지출 [{ c: 종류, t: 내용, w: 금액 }]
   if (c.code === undefined) c.code = guessCode(c);   // 자동 환율용 통화 코드 (JPY 등)
 }
 s.cs.forEach(fix);
@@ -55,6 +56,9 @@ export const UI = {
   open: null,     // 상세 패널에 열린 장소 { o: 장소 객체 }
   add: null,      // 장소 추가 패널 { d: 0=보관함|Day, pv: 고른 장소 미리보기, busy }
   set: false,     // 여행 설정 패널
+  imp: false,     // 구글 목록 불러오기 패널
+  glBusy: null,   //   불러오는 중인 링크 번호
+  glMsg: null,    //   결과 안내 { i, ok, t }
   dm: null,       // 일정에서 펼친 장소 줄 ("r3") — 지도에서도 강조
   mapOn: true,    // 지도 열림 (✕ 닫기로 닫힘)
   wishOn: wide(), // 보관함 열림 (넓은 화면은 처음부터 열림)

@@ -8,11 +8,12 @@ import { fit, pick, refit, panTo } from "../google/map.js";
 import { loadHours } from "../google/places.js";
 import { clearFound, toggleExplore } from "../google/explore.js";
 import { logout } from "../sync.js";
+import { importList, addList } from "../google/glist.js";
 import { startEdit, addRow, finishEdit, cancelEdit, startDelete, toggleSel, doDelete } from "../views/prep.js";
 
 
 // 오른쪽 패널(장소 상세·추가·설정) 하나만 열기
-const panel = (k, v) => { UI.open = null; UI.add = null; UI.set = false; if (k) UI[k] = v; };
+const panel = (k, v) => { UI.open = null; UI.add = null; UI.set = false; UI.imp = false; if (k) UI[k] = v; };
 
 function deleteDay(c, n) {
   if (c.nd <= 1) { alert("Day는 최소 1개는 남겨야 해요"); return false; }
@@ -67,6 +68,15 @@ function onClick(e) {
     case "hc": S.hc = !S.hc; break;
     case "mapt": UI.mapOn = !UI.mapOn; UI.menu = null; render(); refit(); return;            // 지도 열기·닫기
     case "wisht": UI.wishOn = !UI.wishOn; render(); refit(); return;                         // 보관함 열기·닫기
+    // ----- 구글 목록 불러오기 (google/glist.js) -----
+    case "glopen": if (!c) return; panel("imp", true); UI.glMsg = null; break;
+    case "glgo": importList(+b.dataset.i); return;
+    case "gladd": { const inp = document.querySelector("[data-gl=new]"); if (!addList(inp && inp.value)) { render(); inp && inp.focus(); } return; }
+    case "gldel": {
+      const e = c.gl[+b.dataset.i];
+      if (!e || !confirm("이 링크를 지울까요?\n(이미 가져온 장소는 보관함·일정에 그대로 남아요)")) return;
+      c.gl.splice(+b.dataset.i, 1); UI.glMsg = null; break;
+    }
     case "xopen": toggleExplore(); render(); return;
     case "xmap": panel(); UI.mapOn = true; toggleExplore(true); render(); refit(); return;   // 장소 추가 패널 → 지도에서 찾기
     case "pin": pick(b.dataset.k); return;                                                   // 지도 마커(간이 지도)
@@ -137,7 +147,7 @@ export function bindActions() {
   document.addEventListener("click", onClick);
   // Esc로 패널·메뉴 닫기
   document.addEventListener("keydown", e => {
-    if (e.key != "Escape" || !(UI.open || UI.menu || UI.add || UI.set || UI.pe || UI.pd)) return;
+    if (e.key != "Escape" || !(UI.open || UI.menu || UI.add || UI.set || UI.imp || UI.pe || UI.pd)) return;
     panel(); UI.menu = null; cancelEdit(); UI.pd = null; render();
   });
 }
