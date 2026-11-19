@@ -91,7 +91,7 @@ function onClick(e) {
       if (UI.dm) panTo(byKey(k));
       return;
     }
-    case "done": { const o = byKey(b.dataset.k); if (o) o.done = o.done ? 0 : 1; break; }  // 다녀왔어요 (예산 실제 지출)
+    case "done": { const o = byKey(b.dataset.k); if (o) o.done = o.done ? 0 : 1; break; }  // 다녀왔어요 (✓ 표시)
     case "dopen": { const o = byKey(b.dataset.k); if (o) panel("open", { o }); break; }     // 상세 패널
 
     // ----- 장소 -----
@@ -151,6 +151,14 @@ function onClick(e) {
       return;
     }
     case "exdel": c.ex.splice(+b.dataset.i, 1); break;
+    case "bx": {                                                                            // [일정 취소] ↔ [일정 추가]
+      const o = byKey(b.dataset.k);
+      if (!o) return;
+      const on = o.bud ? o.bud == "o" : o.s != "후보", def = o.s != "후보";
+      o.bud = !on == def ? undefined : (on ? "x" : "o");   // 기본 상태로 돌아가면 표시 지움
+      if (o.bud === undefined) delete o.bud;
+      break;
+    }
 
     // ----- 준비 탭 -----
     // 카드 누르기 → 수정, [완료] → 반영, 휴지통 → 골라서 삭제 (views/prep.js)

@@ -55,11 +55,14 @@ async function refresh(c) {
   }
 }
 
-// ----- 예산: 계획(일정) vs 실제(다녀온 곳 + 직접 추가한 지출) -----
+// ----- 예산: 계획(일정) vs 실제 -----
 //   계획 = 일정에 넣은 장소의 예산 합계 (후보 제외)
-//   실제 = '다녀왔어요'로 체크한 장소(실제 금액을 적으면 그 금액) + 일정 밖에서 쓴 돈(c.ex)
+//   실제 = 일정대로 전부 들어가고, [일정 취소]한 곳은 빠짐(취소선) + 일정 밖에서 쓴 돈(c.ex)
+//          실제 금액을 적으면 그 금액. 후보는 [일정 추가]를 눌러야 들어감
+//   r.bud: 없음 = 기본(필수는 들어감, 후보는 빠짐) / "x" = 일정 취소 / "o" = 일정 추가
 const amt = n => (+n || 0).toLocaleString("ko-KR", { maximumFractionDigits: 2 });
-export const paid = r => r.done ? (r.paid !== undefined && r.paid !== "" ? +r.paid || 0 : +r.w || 0) : 0;
+export const inBud = r => r.bud ? r.bud == "o" : r.s != "후보";
+export const paid = r => inBud(r) ? (r.paid !== undefined && r.paid !== "" ? +r.paid || 0 : +r.w || 0) : 0;
 
 function totals(c) {
   const t = {};
@@ -73,21 +76,22 @@ function totals(c) {
   return t;
 }
 
-// 종류 하나를 펼쳤을 때: 일정 장소(체크 = 다녀옴) + 직접 추가한 지출
+// 종류 하나를 펼쳤을 때: 일정 장소([일정 취소]/[일정 추가]) + 직접 추가한 지출
 function detail(c, cat) {
   const cu = esc(c.cur);
   const R = c.rows.map((r, i) => ({ r, i })).filter(o => (CATS.includes(o.r.c) ? o.r.c : "기타") == cat)
     .sort((a, b) => (a.r.s == "후보") - (b.r.s == "후보") || a.r.d - b.r.d);
   const E = c.ex.map((e, i) => ({ e, i })).filter(o => (CATS.includes(o.e.c) ? o.e.c : "기타") == cat);
 
-  let h = `<div class="bdet"><div class="bsub">일정에서 <span class="mu">다녀온 곳을 체크하면 실제 지출에 들어가요</span></div>`;
+  let h = `<div class="bdet"><div class="bsub">일정에서 <span class="mu">안 간 곳은 [일정 취소], 실제 금액이 다르면 고쳐 적기</span></div>`;
   h += R.map(({ r, i }) => {
-    const k = "r" + i;
-    return `<div class="bi${r.done ? " on" : ""}">
-      <label><input type="checkbox" data-bd="done" data-k="${k}" ${r.done ? "checked" : ""}><span class="bn"><small>Day ${r.d}</small> ${esc(r.p) || "(이름 없음)"}${r.s == "후보" ? ` <em>후보</em>` : ""}</span></label>
-      <span class="bw">${r.done
+    const k = "r" + i, on = inBud(r);
+    return `<div class="bi${on ? "" : " x"}">
+      <span class="bn"><small>Day ${r.d}</small> <s>${esc(r.p) || "(이름 없음)"}</s>${r.s == "후보" ? ` <em>후보</em>` : ""}</span>
+      <span class="bw">${on
         ? `<input type="number" step="any" inputmode="decimal" data-bd="paid" data-k="${k}" value="${r.paid !== undefined && r.paid !== "" ? esc(r.paid) : ""}" placeholder="${amt(r.w)}" aria-label="${esc(r.p)} 실제 금액"> ${cu}`
-        : `<span class="mu">계획 ${cu}${amt(r.w)}</span>`}</span></div>`;
+        : `<s class="mu">${cu}${amt(r.w)}</s>`}
+        <button class="btn bx${on ? "" : " on"}" data-a="bx" data-k="${k}">${on ? "일정 취소" : "일정 추가"}</button></span></div>`;
   }).join("") || `<div class="mu bi">일정에 이 종류 장소가 없어요</div>`;
 
   h += `<div class="bsub">일정 밖에서 쓴 돈 <span class="mu">예: 공항 택시, 간식, 기념품</span></div>`;
@@ -116,7 +120,7 @@ function budgetCard(c) {
         <span class="bv"><b>${cu}${amt(v.real)}</b><small>/ ${cu}${amt(v.plan)}</small></span><span class="chev" aria-hidden="true">▾</span>
       </button>${open ? detail(c, x) : ""}</div>`;
   }).join("");
-  return h + `<p class="mu">막대: 옅은 색 = 계획(일정 예산 합계, 후보 제외), 진한 색 = 실제 지출. 종류를 누르면 다녀온 곳을 체크하고 일정 밖 지출을 추가할 수 있어요. 일정의 장소 줄에서 [다녀왔어요]를 눌러도 돼요.</p></div>`;
+  return h + `<p class="mu">막대: 옅은 색 = 계획(일정 예산 합계, 후보 제외), 진한 색 = 실제 지출. 실제 지출은 일정대로 다 들어가 있어요. 종류를 누르면 안 간 곳을 [일정 취소]하고(취소선), 다시 [일정 추가]로 되돌리거나, 일정 밖에서 쓴 돈을 추가할 수 있어요.</p></div>`;
 }
 
 export function renderBudget() {

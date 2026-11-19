@@ -96,7 +96,7 @@ function renderPlace(el, o, c) {
     ${f("tip", "꿀팁 (추천 시간대 등)", "오전 9시 전 방문")}
     ${ta("sum", "한 줄 소개", "", 1)}
     ${ta("m", "메모")}
-    ${inWish ? "" : `<label class="chk"><input type="checkbox" data-f="done" ${o.done ? "checked" : ""}> 다녀왔어요 <span class="mu">— 예산 탭 '실제 지출'에 들어가요</span></label>`}
+    ${inWish ? "" : `<label class="chk"><input type="checkbox" data-f="done" ${o.done ? "checked" : ""}> 다녀왔어요 <span class="mu">— 일정에 ✓ 표시</span></label>`}
     <div id="drev"></div>
   </div>
   <div class="dft">

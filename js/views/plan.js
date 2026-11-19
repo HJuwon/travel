@@ -71,7 +71,7 @@ function row(c, o, no, prev) {
     h += `<div class="pmore">${info(r, c.cur)}<div class="pact">`
       + (hasXY(r) ? `<a class="btn" href="${dirURL(from, r, (from && from.tm) || S.mode)}" target="_blank" rel="noopener">🧭 길찾기 <small>${from ? "앞 장소에서" : "지금 위치에서"}</small></a>` : "")
       + (hasXY(r) ? `<button class="btn" data-a="mapgo" data-k="${k}">📍 지도</button>` : "")
-      + `<button class="btn${r.done ? " on" : ""}" data-a="done" data-k="${k}" aria-pressed="${!!r.done}" title="예산 탭 '실제 지출'에 들어가요">${r.done ? "✓ 다녀옴" : "다녀왔어요"}</button>`
+      + `<button class="btn${r.done ? " on" : ""}" data-a="done" data-k="${k}" aria-pressed="${!!r.done}" title="다녀온 곳에 ✓ 표시">${r.done ? "✓ 다녀옴" : "다녀왔어요"}</button>`
       + `<button class="btn" data-a="dopen" data-k="${k}">✎ 편집</button>`
       + `</div></div>`;
   }

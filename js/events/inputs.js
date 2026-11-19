@@ -31,12 +31,11 @@ function onChange(e) {
 
   // 여행 설정: 기본 이동수단
   if (t.dataset.set == "mode") { S.mode = t.value; render(); return; }
-  // 예산 탭: 다녀옴 체크 · 실제 금액
+  // 예산 탭: 실제 금액
   if (t.dataset.bd) {
     const o = byKey(t.dataset.k);
     if (!o) return;
-    if (t.dataset.bd == "done") o.done = t.checked ? 1 : 0;
-    else if (t.value === "") delete o.paid; else o.paid = +t.value || 0;
+    if (t.value === "") delete o.paid; else o.paid = +t.value || 0;
     render();
     return;
   }
