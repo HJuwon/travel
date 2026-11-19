@@ -60,31 +60,31 @@ function renderPlace(el, o, c) {
       <label class="f">예산(${esc(c.cur)})<input data-f="w" type="number" inputmode="decimal" value="${esc(o.w || 0)}"></label>
     </div>
     <h4 class="fg">운영·요금</h4>
-    ${ta("hrs", "운영·입장 시간 (요일별)" + (g ? " · 구글 자동" : ""), "09:00~17:00", 3)}
+    ${ta("hrs", "운영·입장 시간 (요일별)", "09:00~17:00", 3)}
     ${f("fee", "입장료", "무료 / 1,000엔")}
-    ${food || o.price ? f("price", "가격대" + (g ? " · 구글 자동" : ""), "€10~20") : ""}
+    ${food || o.price ? f("price", "가격대", "€10~20") : ""}
     ${food || o.brk ? f("brk", "브레이크타임", "15:00~17:00") : ""}
-    ${f("pay", "결제" + (g ? " · 구글 자동" : ""), "카드 가능 / 현금만")}
-    ${f("rsv", "예약" + (g ? " · 구글 자동" : ""), "예약 가능 / 현장 대기")}
+    ${f("pay", "결제", "카드 가능 / 현금만")}
+    ${f("rsv", "예약", "예약 필요 / 현장 대기")}
     <h4 class="fg">메모</h4>
     ${food ? f("menu", "대표·인기 메뉴") : ""}
     ${f("dress", "복장 규정")}
     ${f("tip", "꿀팁 (추천 시간대 등)", "오전 9시 전 방문")}
-    ${ta("sum", "한 줄 소개" + (g ? " · 구글 자동" : ""), "", 1)}
+    ${ta("sum", "한 줄 소개", "", 1)}
     ${ta("m", "메모")}
     ${inWish ? "" : `<label class="chk"><input type="checkbox" data-f="done" ${o.done ? "checked" : ""}> 다녀왔어요 <span class="mu">— 예산 탭 '실제 지출'에 들어가요</span></label>`}
     <div id="drev"></div>
   </div>
   <div class="dft">
-    ${g ? `<button class="btn" data-a="hrs" title="영업시간·가격대·결제·예약·소개를 구글 값으로 새로 불러와요">↻ 구글 정보</button>` : ""}
+    ${g ? `<button class="btn" data-a="hrs">영업시간 불러오기</button>` : ""}
     <a class="btn" target="_blank" rel="noopener" href="${gq(o)}">구글맵</a>
     ${/^https?:/.test(o.web || "") ? `<a class="btn" target="_blank" rel="noopener" href="${esc(o.web)}">공식 사이트</a>` : ""}
     <button class="btn dg" data-a="odel">삭제</button>
   </div>`;
 
   if (g) loadReviews(o);
-  // 구글 정보가 비어 있으면 자동으로 불러오기 (한 번만 시도)
-  if (g && (!o.hrs || !o.g2) && !tried.has(o)) { tried.add(o); autofill(new G.Place({ id: o.id }), o); }
+  // 영업시간이 비어 있으면 자동으로 불러오기 (장소마다 한 번만)
+  if (g && !o.hrs && !o.g2 && !tried.has(o)) { tried.add(o); autofill(new G.Place({ id: o.id }), o); }
 }
 
 // 구글 평점·리뷰 3개
