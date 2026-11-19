@@ -1,11 +1,12 @@
-// 장소 추가 패널: 검색(자동완성) → 고른 장소 미리보기(영업시간 자동 불러옴) → [추가] 눌러야 추가
+// 장소 추가 패널: 검색(자동완성) → 고른 장소 미리보기(이름·주소·종류) → [추가]를 눌러야 추가
+//   영업시간·웹사이트는 구글 상위 요금 등급이라 [추가]를 눌렀을 때만 불러옴 (고르기만 하면 안 나감)
 //   + 검색이 안 되는 곳은 이름만 입력해서 추가
 import { UI, cur } from "../state.js";
 import { CATS } from "../constants.js";
 import { $, esc, toast } from "../utils.js";
 import { ic, cv, guessCat } from "../icons.js";
 import { G } from "../google/gm.js";
-import { fmtHours } from "../google/places.js";
+import { autofill } from "../google/places.js";
 import { panTo } from "../google/map.js";
 import { render } from "../render.js";
 
@@ -35,7 +36,7 @@ export function openAdd(d = 0) {
   setTimeout(() => { try { (searchEl() || $("[data-ad=name]")).focus(); } catch (e) {} }, 80);
 }
 
-// 검색 결과를 골랐을 때: 정보를 불러와 미리보기만 보여 줌 (아직 추가 안 됨)
+// 검색 결과를 골랐을 때: 이름·위치·주소·종류만 불러와 미리보기 (아직 추가 안 됨)
 export async function startPick(place) {
   if (!UI.add) UI.add = { d: 0, pv: null, busy: false };
   const A = UI.add;
@@ -43,15 +44,9 @@ export async function startPick(place) {
   A.busy = true;
   render();
   try {
-    await place.fetchFields({ fields: ["displayName", "location", "formattedAddress", "types", "rating", "userRatingCount", "regularOpeningHours", "websiteUri", "priceLevel"] });
-    const pv = { p: place.displayName, id: place.id, la: place.location.lat(), lo: place.location.lng(), c: guessCat(place.types), w: 0, m: "" };
-    const f = fmtHours(place.regularOpeningHours);
-    if (f) { pv.hrs = f.text; if (f.brk) pv.brk = f.brk; }
-    if (place.websiteUri) pv.web = place.websiteUri;
-    if (String(place.priceLevel).indexOf("FREE") > -1) pv.fee = "무료";
-    pv.g2 = 1;
-    A.pv = pv;
-    A.x = { addr: place.formattedAddress || "", rating: place.rating, n: place.userRatingCount };
+    await place.fetchFields({ fields: ["displayName", "location", "formattedAddress", "types"] });
+    A.pv = { p: place.displayName, id: place.id, la: place.location.lat(), lo: place.location.lng(), c: guessCat(place.types), w: 0, m: "" };
+    A.x = { addr: place.formattedAddress || "" };
   } catch (e) {
     console.error(e);
     toast("장소 정보를 불러오지 못했어요");
@@ -73,6 +68,8 @@ export function commitAdd() {
   render();
   toast("✓ " + name + " → " + (A.d ? "Day " + A.d : "보관함"));
   panTo(o);
+  // 이제 영업시간·웹사이트·무료 여부 불러오기 (구글 장소일 때만)
+  if (o.id && G.Place) autofill(new G.Place({ id: o.id }), o);
 }
 
 export function renderAdd(el) {
@@ -84,10 +81,8 @@ export function renderAdd(el) {
   else if (pv) {
     body += `<div class="pv" style="${cv(pv.c)}">
       ${x.addr ? `<div class="mu">${esc(x.addr)}</div>` : ""}
-      ${x.rating ? `<div>⭐ ${x.rating} <span class="mu">(${x.n || 0})</span></div>` : ""}
       <div class="segc" style="margin-top:8px">${CATS.map(k => `<button class="cf${pv.c == k ? " on" : ""}" data-a="adc" data-c="${k}" style="${cv(k)}">${ic(k, 13)}${k}</button>`).join("")}</div>
-      <div class="f" style="margin-top:8px">영업시간 (자동)<div class="hrs">${pv.hrs ? esc(pv.hrs) : "구글에 영업시간 정보가 없어요"}</div></div>
-      ${pv.brk ? `<div class="mu">브레이크타임 ${esc(pv.brk)}</div>` : ""}
+      <div class="mu" style="margin-top:8px">영업시간은 [추가]를 누르면 자동으로 들어와요.</div>
     </div>
     <button class="btn" data-a="addreset" style="align-self:flex-start">다른 장소 검색</button>`;
   } else {

@@ -75,9 +75,9 @@ export function applyHours(r, h) {
 //   가격대·결제·예약·소개는 구글 상위 요금 등급이라 자동으로 안 불러와요 (상세 패널에 직접 적기)
 export async function autofill(p, r) {
   try {
-    await p.fetchFields({ fields: ["regularOpeningHours", "websiteUri", "priceLevel"] });
+    await p.fetchFields({ fields: ["regularOpeningHours", "websiteURI", "priceLevel"] });
     if (!r.hrs) applyHours(r, p.regularOpeningHours);
-    if (p.websiteUri && !r.web) r.web = p.websiteUri;
+    if (p.websiteURI && !r.web) r.web = p.websiteURI;
     if (String(p.priceLevel).indexOf("FREE") > -1 && !r.fee) r.fee = "무료";
     r.g2 = 1; // 한 번 불러왔다는 표시 (영업시간 정보가 없는 곳을 열 때마다 다시 부르지 않게)
     render();
