@@ -1,4 +1,4 @@
-// Day 칸 카드 사이 이동시간 (키 없으면 직선거리만 표시)
+// 일정 장소 사이 이동시간 (키 없으면 직선거리만 표시)
 //   한 번 계산한 구간은 이 기기(localStorage)에 저장해 두고 다시 요청하지 않음
 //   → 장소나 순서, 이동수단이 바뀐 구간만 Routes API 호출 (요금·할당량 절약)
 import { G } from "./gm.js";
@@ -36,8 +36,9 @@ async function route(k, A, B, mode) {
 
 export async function legs() {
   const c = cur();
-  if (S.tab != "plan" || UI.mode != "plan" || !c) return;
-  for (let d = 1; d <= c.nd; d++) {
+  if (S.tab != "plan" || !c) return;
+  const ds = UI.focus ? [UI.focus] : Array.from({ length: c.nd }, (_, i) => i + 1); // 화면에 보이는 Day만
+  for (const d of ds) {
     const v = shown(dayRows(d));
     for (let j = 0; j < v.length - 1; j++) {
       const a = v[j].r, b = v[j + 1].r;

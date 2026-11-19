@@ -1,11 +1,11 @@
-// 장소 카드 (보관함 · Day 칸 공통)
+// 보관함 장소 카드 (+ 일정 줄에서도 쓰는 아랫줄 글자 meta)
 import { UI } from "../state.js";
 import { esc, won } from "../utils.js";
 import { ic, cv } from "../icons.js";
 
 // 카드 아랫줄: 운영시간 첫 줄 · 비용
-const meta = (o, cu) => [
-  o.hrs ? String(o.hrs).split("\n")[0].slice(0, 20) : "",
+export const meta = (o, cu) => [
+  o.hrs ? esc(String(o.hrs).split("\n")[0].slice(0, 20)) : "",
   o.w ? esc(cu) + won(o.w) : "",
 ].filter(Boolean).join(" · ") || esc(o.m || o.c);
 

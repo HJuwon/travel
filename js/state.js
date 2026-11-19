@@ -4,6 +4,7 @@
 import { SEED } from "./seed.js";
 import { newPrep } from "./constants.js";
 import { guessCode } from "./fx.js";
+import { todayDay } from "./utils.js";
 
 const KEY = "trip";
 
@@ -30,6 +31,7 @@ function fix(c) {
   c.rows.forEach(r => { r.d = r.d || 1; if (r.s == "변경가능") r.s = "후보"; });
   c.tr = c.tr || {};
   c.prep = c.prep || newPrep();
+  c.ex = c.ex || [];                                 // 예산: 일정에 없던 추가 지출 [{ c: 종류, t: 내용, w: 금액 }]
   if (c.code === undefined) c.code = guessCode(c);   // 자동 환율용 통화 코드 (JPY 등)
 }
 s.cs.forEach(fix);
@@ -47,24 +49,25 @@ export function applyRemote(data) {
 // 저장 직후 호출할 함수 (sync.js가 서버 저장을 연결)
 export const hooks = { afterSave: null };
 
+const wide = () => matchMedia("(min-width:1100px)").matches;
 export const UI = {
-  mode: "plan",   // 일정 탭 안: "plan"(계획) | "dash"(대시보드)
-  focus: 1,       // 지도에 보여줄 Day (0 = 전체)
+  focus: 0,       // 보고 있는 Day (0 = 전체). 아래에서 여행 중이면 오늘, 휴대폰이면 Day 1
   open: null,     // 상세 패널에 열린 장소 { o: 장소 객체 }
-  dm: null,       // 대시보드에서 펼친 일정 줄 ("r3")
-  sel: null,      // 대시보드에서 강조한 장소 키 ("r3")
-  catF: [],       // 내 장소 카테고리 필터 — 여러 개 선택 (보관함 목록 + 지도). 비어 있으면 전부
-  fold: {},       // 휴대폰 대시보드에서 접은 구역 { map, days, cands }
-  pe: null,       // 준비 탭에서 수정 중인 카드 ("bk" | "docs" | "chk" | "tr" | "fx")
+  add: null,      // 장소 추가 패널 { d: 0=보관함|Day, pv: 고른 장소 미리보기, busy }
+  set: false,     // 여행 설정 패널
+  dm: null,       // 일정에서 펼친 장소 줄 ("r3") — 지도에서도 강조
+  mapOn: true,    // 지도 열림 (✕ 닫기로 닫힘)
+  wishOn: wide(), // 보관함 열림 (넓은 화면은 처음부터 열림)
+  catF: [],       // 종류 필터 — 여러 개 선택 (보관함 목록 + 지도). 비어 있으면 전부
+  bo: null,       // 예산 탭에서 펼친 종류 ("식사" …)
+  pe: null,       // 준비 탭에서 수정 중인 카드 ("bk" | "docs" | "chk" | "tr")
   draft: null,    //   수정 중인 사본 ([완료]를 눌러야 반영)
   peFocus: null,  //   수정 모드에서 커서를 둘 줄 번호
   pd: null,       // 준비 탭에서 삭제할 항목을 고르는 중인 카드
   pdSel: [],      //   고른 항목 번호들
-  add: null,      // 장소 추가 패널 { d: 0=보관함|Day, pv: 고른 장소 미리보기, busy }
   xo: false,      // 지도 위 "주변 찾기" 펼침
   found: 0,       // 지도에 떠 있는 주변 검색 결과 수
-  menu: null,     // 열린 메뉴 ("country" | "day2" …)
-  mapOn: false,   // 태블릿·폰에서 지도 패널 열림
+  menu: null,     // 열린 메뉴 ("country" | "day2" | "mapf")
 };
 
 export function save() {
@@ -74,6 +77,10 @@ export function save() {
 
 // 현재 선택한 나라
 export const cur = () => S.cs[S.sel];
+
+// 처음 보여 줄 Day: 여행 중이면 오늘, 휴대폰이면 Day 1, 아니면 전체
+export const startDay = () => todayDay(cur()) || (matchMedia("(max-width:760px)").matches ? 1 : 0);
+UI.focus = startDay();
 
 // 카드 키 ↔ 장소 객체 ("r3" = 일정 3번째, "w0" = 보관함 0번째)
 export const byKey = k => {

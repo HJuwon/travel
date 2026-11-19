@@ -1,5 +1,5 @@
 // 입력칸 변경 · Enter 키 · 환율 계산기
-import { UI, cur, moveTo } from "../state.js";
+import { S, UI, cur, moveTo, byKey } from "../state.js";
 import { commitAdd } from "../views/addpanel.js";
 import { render, renderMain } from "../render.js";
 import { renderDrawer } from "../views/drawer.js";
@@ -22,11 +22,25 @@ function onChange(e) {
   if (f && UI.open) {
     const o = UI.open.o, v = t.value;
     if (f == "at") { moveTo(o, +v); render(); return; }          // 보관함 ↔ Day
+    if (f == "done") { o.done = t.checked ? 1 : 0; renderMain(); return; }  // 다녀왔어요
     o[f] = f == "w" ? +v || 0 : v;
     renderMain();                                                // 패널은 그대로 (포커스 유지)
     if (f == "s") renderDrawer();
     return;
   }
+
+  // 여행 설정: 기본 이동수단
+  if (t.dataset.set == "mode") { S.mode = t.value; render(); return; }
+  // 예산 탭: 다녀옴 체크 · 실제 금액
+  if (t.dataset.bd) {
+    const o = byKey(t.dataset.k);
+    if (!o) return;
+    if (t.dataset.bd == "done") o.done = t.checked ? 1 : 0;
+    else if (t.value === "") delete o.paid; else o.paid = +t.value || 0;
+    render();
+    return;
+  }
+  if (t.dataset.ex) return; // 예산 탭 추가 지출 입력칸 ([+ 추가]를 눌러야 반영)
 
   const k = t.dataset.k;
   if (!k || !c) return;
@@ -60,6 +74,8 @@ function onKeydown(e) {
     render();
     return;
   }
+  // 예산 탭 추가 지출 칸에서 Enter → [+ 추가]
+  if (e.key == "Enter" && t.dataset && t.dataset.ex && !e.isComposing) { e.preventDefault(); t.closest(".exadd").querySelector("[data-a=exadd]").click(); return; }
   // 장소 추가 패널 이름 칸 Enter → 추가
   if (e.key == "Enter" && t.dataset && t.dataset.ad == "name") { e.preventDefault(); commitAdd(); return; }
   // 카드에 포커스 + Enter → 열기

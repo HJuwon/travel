@@ -1,4 +1,4 @@
-// 구글 지도: 초기화 · 카테고리 마커/동선 · 범위 맞추기 · 장소 고르기
+// 구글 지도: 초기화 · 카테고리 마커/동선 · 범위 맞추기 · 마커 고르기
 import { G } from "./gm.js";
 import { addPlace } from "./places.js";
 import { setupExplore } from "./explore.js";
@@ -83,15 +83,6 @@ export function addBtns(box, p, done) {
   box.appendChild(row);
 }
 
-// 지도 영역을 지금 화면(계획/대시보드) 쪽으로 옮기기
-export function placeMap() {
-  const slot = $(UI.mode == "dash" ? "#dslot" : "#pslot"), el = $("#map");
-  if (el.parentNode !== slot) {
-    slot.appendChild(el);
-    if (G.map) setTimeout(() => { google.maps.event.trigger(G.map, "resize"); fit(); }, 60);
-  }
-}
-
 // 마커·동선 다시 그리기
 export function drawMarkers() {
   if (S.tab != "plan") return;
@@ -134,20 +125,23 @@ export function panTo(o) {
   if (G.map && o && hasXY(o)) G.map.panTo({ lat: o.la, lng: o.lo });
 }
 
-// 카드·마커·후보를 눌렀을 때
-//   계획 모드 → 상세 패널 열기 / 대시보드 → 지도에서 강조
-export function pick(k) {
+// 지도 크기가 바뀐 뒤 (지도 열기·보관함 열기 등) 다시 맞추기
+export const refit = () => setTimeout(() => { if (G.map) google.maps.event.trigger(G.map, "resize"); fit(); }, 60);
+
+// 마커를 눌렀을 때 / 일정 줄의 [📍 지도]
+//   일정 장소 → 그 줄을 펼치고 지도에서 강조, 보관함 장소 → 상세 패널
+export function pick(k, zoom) {
   const o = byKey(k);
   if (!o) return;
-  if (UI.mode == "dash") {
-    UI.sel = UI.sel == k ? null : k;
-    if (UI.sel && k[0] == "r") UI.focus = o.d;
-    render();
-    if (UI.sel) panTo(o);
-    return;
-  }
-  UI.add = null;
-  UI.open = { o };
+  if (k[0] == "w") { UI.set = false; UI.add = null; UI.open = { o }; render(); panTo(o); return; }
+  UI.dm = k;
+  if (UI.focus && UI.focus != o.d) UI.focus = o.d;
+  const reopen = !UI.mapOn;
+  UI.mapOn = true;
   render();
-  panTo(o);
+  if (reopen) refit();
+  if (G.map && hasXY(o)) { G.map.panTo({ lat: o.la, lng: o.lo }); if (zoom && G.map.getZoom() < 15) G.map.setZoom(15); }
+  const row = document.querySelector(`#days [data-k="${k}"]`);
+  if (row && !zoom) row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (zoom) document.querySelector("#mapw").scrollIntoView({ block: "nearest", behavior: "smooth" });
 }

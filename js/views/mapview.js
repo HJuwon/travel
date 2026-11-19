@@ -1,4 +1,4 @@
-// 지도에 올릴 점·선 계산 + 지도 위 Day 칩 · 범례 + 간이 지도(키 없을 때)
+// 지도에 올릴 점·선 계산 + 지도 위 버튼(닫기·주변 찾기·필터) · 범례 + 간이 지도(키 없을 때)
 import { S, UI, cur, dayRows, shown, nums, catOn } from "../state.js";
 import { CATS } from "../constants.js";
 import { $, esc, hasXY } from "../utils.js";
@@ -17,28 +17,26 @@ export function mapData() {
     // 카테고리로 거르는 중엔 동선이 끊겨 보이니 숨김
     if (!UI.catF.length) lines.push(L.filter(o => hasXY(o.r) && o.r.s != "후보").map(o => o.r));
   });
-  // 계획 모드에선 보관함 장소도 옅게 표시 (어디쯤인지 보면서 배치)
-  if (UI.mode == "plan") c.wish.forEach((w, i) => {
+  // 보관함을 열어 두면 보관함 장소도 옅게 표시 (어디쯤인지 보면서 배치)
+  if (UI.wishOn) c.wish.forEach((w, i) => {
     if (ok(w)) pts.push({ o: w, key: "w" + i, no: null, wish: true });
   });
   return { pts, lines };
 }
 
 export function pinHTML(p, extra = "") {
-  const sel = (UI.open && UI.open.o === p.o) || UI.sel == p.key;
+  const sel = (UI.open && UI.open.o === p.o) || UI.dm == p.key;
   return `<div class="pin${p.cand ? " cand" : ""}${p.wish ? " wish" : ""}${sel ? " sel" : ""}" style="${cv(p.o.c)}${extra}" title="${esc(p.o.p)}" data-a="pin" data-k="${p.key}">${ic(p.o.c, 16)}${p.no != null ? `<i>${p.no}</i>` : ""}</div>`;
 }
 
-// 지도 위: [필터] 버튼(종류를 골라 걸러 보기) + Day 칩, 아래: 범례
+// 지도 위: [✕ 닫기] [🔍 주변 찾기] [⚙ 필터(종류를 골라 걸러 보기)], 아래: 범례
 export function renderMapHead(pts) {
-  const c = cur(), dash = UI.mode == "dash";
-  const head = $(dash ? "#dmh" : "#pmh"), pop = $(dash ? "#dmf" : "#pmf"), lg = $(dash ? "#dlg" : "#plg");
-  $(dash ? "#pmf" : "#dmf").hidden = true;
+  const c = cur(), head = $("#mh"), pop = $("#mf"), lg = $("#lg");
   const n = UI.catF.length, open = !!c && UI.menu == "mapf";
-  head.innerHTML = c ? (dash ? `<button class="cf fbtn" data-a="fold" data-f="map">🗺 ${UI.fold.map ? "펼치기 ▾" : "접기 ▴"}</button>` : `<button class="cf mclose" data-a="mapt">✕ 지도 닫기</button>`) + (G.map ? `<button class="cf xbtn${UI.xo ? " on" : ""}" data-a="xopen" aria-pressed="${!!UI.xo}">🔍 주변 찾기</button>` : "")
-    + `<button class="cf flt${n ? " on" : ""}" data-a="menu" data-m="mapf" aria-haspopup="true" aria-expanded="${open}">⚙ 필터${n ? ` <i>${n}</i>` : ""}</button><span class="msep" aria-hidden="true"></span>`
-    + [0, ...Array.from({ length: c.nd }, (_, i) => i + 1)].map(d =>
-      `<button class="cf${UI.focus == d ? " on" : ""}" data-a="focus" data-d="${d}">${d ? "Day " + d : "전체"}</button>`).join("")
+  head.innerHTML = c ? `<button class="cf mclose" data-a="mapt" title="지도 닫기">✕ 닫기</button>`
+    + (G.map ? `<button class="cf xbtn${UI.xo ? " on" : ""}" data-a="xopen" aria-pressed="${!!UI.xo}">🔍 주변 찾기</button>` : "")
+    + `<button class="cf flt${n ? " on" : ""}" data-a="menu" data-m="mapf" aria-haspopup="true" aria-expanded="${open}">⚙ 필터${n ? ` <i>${n}</i>` : ""}</button>`
+    + `<span class="mday">${UI.focus ? "Day " + UI.focus : "전체 일정"}</span>`
     : "";
   pop.hidden = !open;
   pop.innerHTML = open ? `<div class="mt">종류 <button class="fr" data-a="cat" data-c="">초기화</button></div>

@@ -5,7 +5,7 @@ import { CATS } from "../constants.js";
 import { $, esc, toast } from "../utils.js";
 import { ic, cv, guessCat } from "../icons.js";
 import { G } from "../google/gm.js";
-import { fmtHours } from "../google/places.js";
+import { fmtHours, MORE, applyMore } from "../google/places.js";
 import { panTo } from "../google/map.js";
 import { render } from "../render.js";
 
@@ -24,7 +24,7 @@ function searchEl() {
 
 // d = 0 이면 보관함, 1 이상이면 그 Day에 넣을 장소를 고르는 패널 열기
 export function openAdd(d = 0) {
-  UI.open = null;
+  UI.open = null; UI.set = false;
   UI.add = { d, pv: null, busy: false };
   const s = searchEl();
   if (s) {
@@ -39,16 +39,17 @@ export function openAdd(d = 0) {
 export async function startPick(place) {
   if (!UI.add) UI.add = { d: 0, pv: null, busy: false };
   const A = UI.add;
-  UI.open = null;
+  UI.open = null; UI.set = false;
   A.busy = true;
   render();
   try {
-    await place.fetchFields({ fields: ["displayName", "location", "formattedAddress", "types", "rating", "userRatingCount", "regularOpeningHours", "websiteUri", "priceLevel"] });
+    await place.fetchFields({ fields: ["displayName", "location", "formattedAddress", "types", "rating", "userRatingCount", "regularOpeningHours", "websiteUri", "priceLevel", ...MORE] });
     const pv = { p: place.displayName, id: place.id, la: place.location.lat(), lo: place.location.lng(), c: guessCat(place.types), w: 0, m: "" };
     const f = fmtHours(place.regularOpeningHours);
     if (f) { pv.hrs = f.text; if (f.brk) pv.brk = f.brk; }
     if (place.websiteUri) pv.web = place.websiteUri;
     if (String(place.priceLevel).indexOf("FREE") > -1) pv.fee = "무료";
+    applyMore(pv, place);
     A.pv = pv;
     A.x = { addr: place.formattedAddress || "", rating: place.rating, n: place.userRatingCount };
   } catch (e) {
@@ -87,6 +88,8 @@ export function renderAdd(el) {
       <div class="segc" style="margin-top:8px">${CATS.map(k => `<button class="cf${pv.c == k ? " on" : ""}" data-a="adc" data-c="${k}" style="${cv(k)}">${ic(k, 13)}${k}</button>`).join("")}</div>
       <div class="f" style="margin-top:8px">영업시간 (자동)<div class="hrs">${pv.hrs ? esc(pv.hrs) : "구글에 영업시간 정보가 없어요"}</div></div>
       ${pv.brk ? `<div class="mu">브레이크타임 ${esc(pv.brk)}</div>` : ""}
+      ${pv.sum ? `<div class="psum">${esc(pv.sum)}</div>` : ""}
+      ${[pv.price && "💰 가격대 " + pv.price, pv.pay && "💳 " + pv.pay, pv.rsv && "📅 " + pv.rsv].filter(Boolean).map(t => `<div>${esc(t)}</div>`).join("")}
     </div>
     <button class="btn" data-a="addreset" style="align-self:flex-start">다른 장소 검색</button>`;
   } else {

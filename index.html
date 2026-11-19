@@ -12,48 +12,32 @@
 </head>
 <body>
 
-<!-- 상단: 나라 선택 · 탭 · 계획/대시보드 -->
+<!-- 상단: 나라 선택 · 탭 -->
 <header class="top">
   <div class="brand">✈️ <span class="bt">여행 플래너</span></div>
   <div class="cwrap" id="cwrap"></div>
   <nav class="tabs" id="tabs"></nav>
   <span class="sync" id="sync" role="status" hidden></span>
-  <div class="seg" id="seg"></div>
 </header>
 
-<!-- 일정 · 계획 모드: 보관함 | Day 칸 | 지도 -->
-<main class="planner" id="planner">
-  <aside class="wish">
-    <div class="sec">보관함 <span id="wcount"></span></div>
-    <button class="addw" data-a="wmanual">+ 장소 추가</button>
+<!-- 일정 탭: (보관함) | Day별 일정 | 지도   — 휴대폰은 지도 → 일정, 보관함은 아래에서 올라오는 창 -->
+<main class="trip" id="trip">
+  <aside class="wish" id="wishp" aria-label="보관함">
+    <div class="sec"><b>📥 보관함 <span id="wcount"></span></b><button class="x" data-a="wisht" aria-label="보관함 닫기">✕</button></div>
+    <button class="addw" data-a="wmanual">+ 보관함에 장소 추가</button>
     <div class="wlist" id="wishlist"></div>
-    <p class="hint" id="whint" hidden>카드를 Day 칸으로 끌어다 놓으세요.<br>태블릿·폰에서는 길게 눌러서 잡아요.</p>
+    <p class="hint" id="whint">카드를 Day로 끌어다 놓거나, 눌러서 Day를 고르세요.<br>휴대폰에서는 길게 눌러서 잡아요.</p>
   </aside>
-  <section class="main">
+  <section class="plan">
     <div class="bar" id="bar"></div>
-    <div class="board" id="board"></div>
+    <div class="dchips" id="dchips"></div>
+    <div class="days" id="days"></div>
   </section>
-  <section class="mapwrap">
-    <div class="maph" id="pmh"></div>
-    <div class="mn mfp" id="pmf" hidden></div>
-    <div class="mapslot" id="pslot"><div id="map"></div></div>
-    <div class="legend" id="plg"></div>
-  </section>
-</main>
-
-<!-- 일정 · 대시보드 모드: 지도 | Day별 일정 | 후보군  (휴대폰은 위에서 아래로 같은 순서) -->
-<main class="dash" id="dash" hidden>
-  <section class="mapwrap dmap">
-    <div class="maph" id="dmh"></div>
-    <div class="mn mfp" id="dmf" hidden></div>
-    <div class="mapslot" id="dslot"></div>
-    <div class="legend" id="dlg"></div>
-  </section>
-  <div class="sec secf" data-a="fold" data-f="days">일정 <span class="chev">▾</span></div>
-  <div class="days" id="ddays"></div>
-  <section class="cands">
-    <div class="sec" data-a="fold" data-f="cands">후보 <span><span id="ccount"></span><span class="chev"> ▾</span></span></div>
-    <ul class="tl" id="cands"></ul>
+  <section class="mapwrap" id="mapw">
+    <div class="maph" id="mh"></div>
+    <div class="mn mfp" id="mf" hidden></div>
+    <div class="mapslot"><div id="map"></div></div>
+    <div class="legend" id="lg"></div>
   </section>
 </main>
 
@@ -62,7 +46,7 @@
 <main class="page" id="bud" hidden></main>
 <main class="page" id="wxt" hidden></main>
 
-<!-- 장소 상세 패널 -->
+<!-- 오른쪽 패널: 장소 상세 · 장소 추가 · 여행 설정 -->
 <div class="scrim" id="scrim" data-a="close" hidden></div>
 <aside class="drawer" id="drawer" aria-label="장소 상세"></aside>
 
