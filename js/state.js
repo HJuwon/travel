@@ -60,6 +60,7 @@ export const UI = {
   glBusy: null,   //   불러오는 중인 링크 번호
   glMsg: null,    //   결과 안내 { i, ok, t }
   dm: null,       // 일정에서 펼친 장소 줄 ("r3") — 지도에서도 강조
+  wsel: null,     // 보관함에서 펼친 카드 ("w2") — 지도에서도 강조
   mapOn: true,    // 지도 열림 (✕ 닫기로 닫힘)
   wishOn: wide(), // 보관함 열림 (넓은 화면은 처음부터 열림)
   catF: [],       // 종류 필터 — 여러 개 선택 (보관함 목록 + 지도). 비어 있으면 전부

@@ -3,7 +3,7 @@
 //   - 보관함 ↔ Day, Day ↔ Day, Day 안 순서 변경
 //   - 위쪽 Day 칩에 놓으면 그 Day 맨 아래로 옮김 (지금 화면에 없는 Day로도)
 import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/modular/sortable.esm.js";
-import { cur, byKey, moveTo } from "../state.js";
+import { UI, cur, byKey, moveTo } from "../state.js";
 import { render } from "../render.js";
 import { G } from "../google/gm.js";
 import { autofill } from "../google/places.js";
@@ -61,5 +61,6 @@ function sync() {
     if (w) fill(o);
   }
   toChip = null;
+  UI.dm = UI.wsel = null; // 카드 순서가 바뀌면 키("r3")가 달라지니 펼침 닫기
   render();
 }

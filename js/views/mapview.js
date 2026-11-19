@@ -25,7 +25,7 @@ export function mapData() {
 }
 
 export function pinHTML(p, extra = "") {
-  const sel = (UI.open && UI.open.o === p.o) || UI.dm == p.key;
+  const sel = (UI.open && UI.open.o === p.o) || UI.dm == p.key || UI.wsel == p.key;
   return `<div class="pin${p.cand ? " cand" : ""}${p.wish ? " wish" : ""}${sel ? " sel" : ""}" style="${cv(p.o.c)}${extra}" title="${esc(p.o.p)}" data-a="pin" data-k="${p.key}">${ic(p.o.c, 16)}${p.no != null ? `<i>${p.no}</i>` : ""}</div>`;
 }
 

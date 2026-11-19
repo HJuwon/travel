@@ -100,7 +100,7 @@ export function drawMarkers() {
     t.innerHTML = pinHTML(p);
     const pin = t.firstElementChild;
     pin.removeAttribute("data-a"); // 클릭은 아래 gmp-click으로만 처리 (중복 방지)
-    const m = new G.AME({ map: G.map, position: { lat: p.o.la, lng: p.o.lo }, content: pin, title: p.o.p, zIndex: p.wish ? 0 : 1 });
+    const m = new G.AME({ map: G.map, position: { lat: p.o.la, lng: p.o.lo }, content: pin, title: p.o.p, zIndex: UI.wsel == p.key || UI.dm == p.key ? 5 : p.wish ? 0 : 1 }); // 고른 장소는 맨 위에
     m.addListener("gmp-click", () => pick(p.key));
     G.mk[p.key] = m;
   });
@@ -129,11 +129,16 @@ export function panTo(o) {
 export const refit = () => setTimeout(() => { if (G.map) google.maps.event.trigger(G.map, "resize"); fit(); }, 60);
 
 // 마커를 눌렀을 때 / 일정 줄의 [📍 지도]
-//   일정 장소 → 그 줄을 펼치고 지도에서 강조, 보관함 장소 → 상세 패널
+//   일정 장소 → 그 줄을 펼치고 지도에서 강조, 보관함 장소 → 보관함 카드 펼치기
 export function pick(k, zoom) {
   const o = byKey(k);
   if (!o) return;
-  if (k[0] == "w") { UI.set = false; UI.add = null; UI.open = { o }; render(); panTo(o); return; }
+  if (k[0] == "w") {
+    UI.wsel = k; UI.wishOn = true;
+    render(); panTo(o);
+    document.querySelector(`#wishlist [data-k="${k}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    return;
+  }
   UI.dm = k;
   if (UI.focus && UI.focus != o.d) UI.focus = o.d;
   const reopen = !UI.mapOn;

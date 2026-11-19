@@ -65,7 +65,7 @@ a{color:var(--accent-strong)}
 /* 보관함 */
 .wish{border-right:1px solid var(--border);padding:12px 14px;overflow:auto;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
 .wish .sec{align-items:center}.wish .sec b{font-size:14px}.wish .sec .x{width:28px;height:28px;font-size:15px}
-.wlist{display:flex;flex-direction:column;gap:8px;min-height:90px;flex:1}
+.wlist{display:flex;flex-direction:column;gap:8px;min-height:90px;flex:1 0 auto}
 .addw{padding:9px;border-radius:10px;color:var(--accent-strong);font-size:13px;font-weight:500;text-align:center;border:1px dashed var(--accent)}
 .addw:hover{background:var(--accent-soft)}
 .addw.gl{border-style:solid;border-color:var(--border);color:var(--text);font-weight:400}
@@ -128,6 +128,9 @@ a{color:var(--accent-strong)}
 .okm{flex:none;color:var(--cat-move);font-weight:700;font-size:14px}
 .prow.done .cb b{color:var(--muted)}
 .pmore{flex-basis:100%;padding:4px 0 0 40px;cursor:default}
+.wmore{padding-left:0;display:flex;flex-direction:column;gap:8px}
+.wdays{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.wdays .mu{width:100%}
+.wdays .btn{padding:5px 10px;font-size:12.5px}
 .pinfo{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--text);user-select:text;-webkit-user-select:text}
 .pinfo li{display:flex;gap:6px;line-height:1.45}.pinfo li span{flex:none;width:18px;text-align:center}
 .pact{display:flex;gap:6px;flex-wrap:wrap}
@@ -207,8 +210,8 @@ a{color:var(--accent-strong)}
 
 /* ---------- 상세 패널 ---------- */
 .scrim{position:fixed;inset:0;background:var(--scrim);z-index:39}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:94vw;background:var(--surface);border-left:1px solid var(--border);box-shadow:var(--shadow-pop);z-index:40;transform:translateX(105%);transition:transform .22s ease;display:flex;flex-direction:column}
-.drawer.on{transform:none}
+.drawer{position:fixed;top:50%;left:50%;width:min(560px,calc(100vw - 32px));max-height:min(860px,calc(100vh - 48px));max-height:min(860px,calc(100dvh - 48px));background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-pop);z-index:40;transform:translate(-50%,-48%) scale(.98);opacity:0;visibility:hidden;transition:transform .18s ease,opacity .18s ease,visibility 0s .18s;display:flex;flex-direction:column;overflow:hidden}
+.drawer.on{transform:translate(-50%,-50%);opacity:1;visibility:visible;transition:transform .18s ease,opacity .18s ease}
 .dhd{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
 .dhd input{font-weight:700;font-size:16px;border-color:transparent;background:none}
 .dhd input:hover{border-color:var(--border)}
@@ -365,7 +368,10 @@ body.locked>*:not(.gate){display:none!important}
   .day{padding:4px 8px}
   .dh{flex-wrap:wrap;row-gap:0}.dh .dt{flex-basis:calc(100% - 40px)}.dh .wx{margin-left:4px}
   .pmore{padding-left:0}
-  .trip.wishon>.wish{position:fixed;left:0;right:0;top:auto;bottom:64px;width:auto;max-height:62vh;z-index:31;border:1px solid var(--border);border-radius:18px 18px 0 0;box-shadow:var(--shadow-pop)}
+  .drawer{top:auto;bottom:0;left:0;width:100%;max-height:calc(100dvh - 40px);border-radius:18px 18px 0 0;border-width:1px 0 0;transform:translateY(102%);opacity:1}
+  .drawer.on{transform:none}
+  .dft{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .trip.wishon>.wish{position:fixed;left:0;right:0;top:auto;bottom:64px;width:auto;max-height:max(220px,calc(66vh - 175px));z-index:31;border:1px solid var(--border);border-radius:18px 18px 0 0;box-shadow:var(--shadow-pop)}
   .bsum{gap:6px}.bsum>div{padding:8px}.bsum b{font-size:15px}
   .br .bv{min-width:96px;font-size:12.5px}.br .bl{width:56px}
   .exadd{flex-wrap:wrap}.exadd input:first-child{flex-basis:100%}

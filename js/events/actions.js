@@ -5,6 +5,9 @@ import { newPrep } from "../constants.js";
 import { SEED } from "../seed.js";
 import { render } from "../render.js";
 import { fit, pick, refit, panTo } from "../google/map.js";
+import { G } from "../google/gm.js";
+import { autofill } from "../google/places.js";
+import { toast, hasXY } from "../utils.js";
 import { loadHours } from "../google/places.js";
 import { clearFound, toggleExplore } from "../google/explore.js";
 import { logout } from "../sync.js";
@@ -45,7 +48,7 @@ function onClick(e) {
   switch (a) {
     // ----- 상단 -----
     case "menu": UI.menu = UI.menu == b.dataset.m ? null : b.dataset.m; break;
-    case "sel": S.sel = +b.dataset.i; panel(); Object.assign(UI, { dm: null, menu: null, catF: [], bo: null }); UI.focus = startDay(); cancelEdit(); UI.pd = null; clearFound(); render(); refit(); return;
+    case "sel": S.sel = +b.dataset.i; panel(); Object.assign(UI, { dm: null, wsel: null, menu: null, catF: [], bo: null }); UI.focus = startDay(); cancelEdit(); UI.pd = null; clearFound(); render(); refit(); return;
     case "addc":
       S.cs.push({ n: "새 나라", f: "🏳️", cur: "$", rate: 0, nd: 3, tr: {}, rows: [], wish: [], prep: newPrep() });
       S.sel = S.cs.length - 1; S.tab = "plan"; panel("set", true); Object.assign(UI, { dm: null, focus: 0, menu: null });
@@ -92,7 +95,28 @@ function onClick(e) {
     case "dopen": { const o = byKey(b.dataset.k); if (o) panel("open", { o }); break; }     // 상세 패널
 
     // ----- 장소 -----
-    case "open": { const o = byKey(b.dataset.k); if (o) { panel("open", { o }); render(); panTo(o); } return; } // 보관함 카드
+    case "wpick": {                                                                          // 보관함 카드: 펼치고 지도에서 보기
+      const k = b.dataset.k, o = byKey(k);
+      if (!o) return;
+      UI.wsel = UI.wsel == k ? null : k;
+      const reopen = UI.wsel && hasXY(o) && !UI.mapOn;
+      if (reopen) UI.mapOn = true;
+      render();
+      if (reopen) refit();
+      if (UI.wsel && hasXY(o)) {
+        if (G.map) { G.map.panTo({ lat: o.la, lng: o.lo }); if (G.map.getZoom() < 14) G.map.setZoom(14); }
+        if (matchMedia("(max-width:760px)").matches) window.scrollTo({ top: 0, behavior: "smooth" }); // 휴대폰: 위쪽 지도가 보이게
+      }
+      return;
+    }
+    case "wday": {                                                                           // 보관함 → Day n 맨 아래
+      const o = byKey(b.dataset.k);
+      if (!o) return;
+      moveTo(o, d); UI.wsel = null;
+      if (o.id && !o.hrs && G.Place) autofill(new G.Place({ id: o.id }), o);
+      toast("✓ " + o.p + " → Day " + d);
+      break;
+    }
     case "cat": {   // 종류 필터 (여러 개 선택, 눌러서 켜고 끄기. 빈 값 = 초기화)
       const x = b.dataset.c;
       UI.catF = !x ? [] : UI.catF.includes(x) ? UI.catF.filter(y => y != x) : [...UI.catF, x];
