@@ -23,16 +23,25 @@ if (!["plan", "prep", "bud", "wx"].includes(s.tab)) s.tab = "plan"; // 예전 '�
 ["del", "menu", "dsel", "wsel", "wmsg", "wmd", "wd", "pin", "day", "view"].forEach(k => delete s[k]);
 
 // 예전 버전 데이터 보정
+// 숫자여야 하는 칸은 숫자로 (같이 쓰는 데이터에 이상한 값이 들어와도 화면에 코드로 끼어들지 못하게)
+const int = (v, d, lo, hi) => { const n = parseInt(v, 10); return isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
+const num = v => { const n = +v; return isFinite(n) ? n : 0; };
 function fix(c) {
-  c.rows = c.rows || [];
-  c.wish = c.wish || [];
-  c.rate = c.rate || 0;
-  c.nd = c.nd || 3;
-  c.rows.forEach(r => { r.d = r.d || 1; if (r.s == "변경가능") r.s = "후보"; });
+  c.rows = Array.isArray(c.rows) ? c.rows : [];
+  c.wish = Array.isArray(c.wish) ? c.wish : [];
+  c.rate = num(c.rate);
+  c.rateAt = num(c.rateAt);
+  c.nd = int(c.nd, 3, 1, 90);
+  c.rows.forEach(r => { r.d = int(r.d, 1, 1, c.nd); r.w = num(r.w); if (r.s == "변경가능") r.s = "후보"; });
+  c.wish.forEach(r => { r.w = num(r.w); });
   c.tr = c.tr || {};
   c.prep = c.prep || newPrep();
-  c.ex = c.ex || [];
-  c.gl = c.gl || [];                                 // 구글 지도 공유 목록 링크 [{ url, title, keys, at, n }]                                 // 예산: 일정에 없던 추가 지출 [{ c: 종류, t: 내용, w: 금액 }]
+  // 예산: 일정에 없던 추가 지출 [{ c: 종류, t: 내용, w: 금액 }]
+  c.ex = Array.isArray(c.ex) ? c.ex : [];
+  c.ex.forEach(e => { e.w = num(e.w); });
+  // 구글 지도 공유 목록 링크 [{ url, title, keys, at, n }]
+  c.gl = Array.isArray(c.gl) ? c.gl : [];
+  c.gl.forEach(e => { e.n = num(e.n); e.at = num(e.at); e.keys = Array.isArray(e.keys) ? e.keys : []; });
   if (c.code === undefined) c.code = guessCode(c);   // 자동 환율용 통화 코드 (JPY 등)
 }
 s.cs.forEach(fix);

@@ -7,10 +7,12 @@
 //   - 링크가 있는 사람이 볼 수 있게 공유된 목록만 돼요 (비공개 목록은 로그인이 필요해서 안 됨)
 //   - 구글 장소 API를 부르지 않아서 요금이 없어요
 //   - 보안: 구글 지도 주소만 요청하고, 짧은 링크의 리다이렉트도 하나하나 구글 주소인지 확인 (SSRF 방지)
+//           이 사이트 화면에서 온 요청만 받음 (다른 사이트·브라우저에서 이 주소를 가져다 쓰지 못하게)
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const SHORT = ["maps.app.goo.gl", "goo.gl"];
-const GOOGLE = /^(www\.)?google\.[a-z.]{2,6}$|^maps\.google\.[a-z.]{2,6}$/;
+// google.com, google.co.kr, google.com.au, google.it … (www. / maps. 포함). google.ab.cd 같은 남의 도메인은 안 됨
+const GOOGLE = /^(www\.|maps\.)?google\.(com|co\.[a-z]{2}|com\.[a-z]{2}|[a-z]{2})$/;
 
 const isShort = u => SHORT.includes(u.hostname) && (u.hostname != "goo.gl" || u.pathname.startsWith("/maps"));
 const isGoogle = u => u.protocol == "https:" && GOOGLE.test(u.hostname);
@@ -91,8 +93,19 @@ function parse(data) {
   return { title, places };
 }
 
+// 이 사이트에서 보낸 요청인지 (브라우저가 붙이는 Sec-Fetch-Site / Origin / Referer 로 확인)
+function sameSite(req) {
+  const h = req.headers, host = String(h["x-forwarded-host"] || h.host || "").toLowerCase();
+  const site = h["sec-fetch-site"];
+  if (site) return site == "same-origin";
+  const from = h.origin || h.referer;
+  try { return !!from && new URL(from).host.toLowerCase() == host; } catch (e) { return false; }
+}
+
 module.exports = async (req, res) => {
   res.setHeader("cache-control", "no-store");
+  if (req.method != "GET") return fail(res, 405, "GET만 돼요");
+  if (!sameSite(req)) return fail(res, 403, "이 사이트에서만 쓸 수 있어요");
   let u;
   try { u = new URL(String(req.query.url || "").trim()); } catch (e) { return fail(res, 400, "링크 형식이 올바르지 않아요"); }
   if (!isShort(u) && !isGoogle(u)) return fail(res, 400, "구글 지도 링크(maps.app.goo.gl 또는 google.com/maps)만 넣을 수 있어요");
